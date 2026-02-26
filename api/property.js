@@ -1,11 +1,11 @@
 /**
  * GET /api/property?id=:propertyId
- * Returns a single property with photos and amenities merged.
+ * Returns a single property with a synthetic photos array built from
+ * the thumbnail URLs already present on the property object.
  *
- * OwnerRez calls made:
- *   GET /v2/properties/:id
- *   GET /v2/properties/:id/photos
- *   GET /v2/propertytypes  (for display labels)
+ * Note: OwnerRez /v2/listings (full photo gallery + descriptions) requires
+ * the "WordPress Plugin + Integrated Websites" premium add-on which is not
+ * currently enabled. We use thumbnail_url_large as the single high-res photo.
  */
 export default async function handler(req, res) {
   if (req.method === 'OPTIONS') {
@@ -34,24 +34,29 @@ export default async function handler(req, res) {
   const base = 'https://api.ownerrez.com/v2';
 
   try {
-    // Fetch property, photos, and amenities in parallel
-    const [propRes, photosRes] = await Promise.all([
-      fetch(`${base}/properties/${id}`, { headers }),
-      fetch(`${base}/properties/${id}/photos`, { headers }),
-    ]);
+    const propRes = await fetch(`${base}/properties/${id}`, { headers });
 
     if (!propRes.ok) {
       return res.status(propRes.status).json({ error: `Property ${id} not found` });
     }
 
-    const [property, photosData] = await Promise.all([
-      propRes.json(),
-      photosRes.ok ? photosRes.json() : Promise.resolve({ items: [] }),
-    ]);
+    const property = await propRes.json();
+
+    // Build a synthetic photos array from the thumbnail URLs on the property.
+    // OwnerRez's full photo gallery requires the /v2/listings premium endpoint.
+    const photos = [];
+    if (property.thumbnail_url_large || property.thumbnail_url_medium || property.thumbnail_url) {
+      photos.push({
+        url: property.thumbnail_url_large ?? property.thumbnail_url_medium ?? property.thumbnail_url,
+        large_url: property.thumbnail_url_large ?? null,
+        medium_url: property.thumbnail_url_medium ?? null,
+        thumbnail_url: property.thumbnail_url ?? null,
+      });
+    }
 
     const result = {
       ...property,
-      photos: photosData?.items ?? photosData ?? [],
+      photos,
     };
 
     res.setHeader('Cache-Control', 's-maxage=300, stale-while-revalidate=60');

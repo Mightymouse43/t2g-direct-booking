@@ -8,10 +8,16 @@ function getPhotoUrl(property) {
   const photos = property.photos ?? [];
   if (photos.length) {
     const first = photos[0];
-    return first.url ?? first.medium_url ?? first.large_url ?? first.thumbnail_url ?? null;
+    return first.url ?? first.large_url ?? first.medium_url ?? first.thumbnail_url ?? null;
   }
-  // Fallback: OwnerRez sometimes puts a thumbnail on the property object
-  return property.thumbnail_url ?? property.primary_photo_url ?? null;
+  // Use the largest available thumbnail from the property object directly
+  return (
+    property.thumbnail_url_large ??
+    property.thumbnail_url_medium ??
+    property.thumbnail_url ??
+    property.primary_photo_url ??
+    null
+  );
 }
 
 const PLACEHOLDER = 'https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=800&q=70&auto=format&fit=crop';
