@@ -1,4 +1,25 @@
 /**
+ * Convert an HTML string to plain text, preserving paragraph and line breaks.
+ */
+function htmlToText(html) {
+  if (!html) return null;
+  return html
+    .replace(/<\/p>/gi, '\n\n')
+    .replace(/<br\s*\/?>/gi, '\n')
+    .replace(/<[^>]+>/g, '')
+    .replace(/&nbsp;/gi, ' ')
+    .replace(/&amp;/gi, '&')
+    .replace(/&lt;/gi, '<')
+    .replace(/&gt;/gi, '>')
+    .replace(/&quot;/gi, '"')
+    .replace(/&apos;/gi, "'")
+    .replace(/&#(\d+);/g, (_, n) => String.fromCharCode(Number(n)))
+    .replace(/&[a-z]+;/gi, '')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
+}
+
+/**
  * GET /api/property?id=:propertyId
  * Returns a single property merged with listing data (full photos + description)
  * from OwnerRez /v2/listings — requires "WordPress Plugin + Integrated Websites" add-on.
@@ -62,12 +83,13 @@ export default async function handler(req, res) {
       }
 
       // Description — OwnerRez may return it at different paths
-      description =
+      const rawDescription =
         listing.description ??
         listing.descriptions?.description ??
         listing.descriptions?.main ??
         listing.headline ??
         null;
+      description = htmlToText(rawDescription);
     } else {
       console.warn(`[api/property] Listing ${id} returned ${listingRes.status} — falling back to thumbnail`);
     }

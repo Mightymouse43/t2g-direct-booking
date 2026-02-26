@@ -4,6 +4,7 @@ const TRUNCATE_LENGTH = 400;
 
 /**
  * Renders the property description text with a "Read more / Read less" toggle.
+ * The description is expected to be plain text (HTML stripped server-side in api/property.js).
  */
 export default function PropertyDescription({ description }) {
   const [expanded, setExpanded] = useState(false);
