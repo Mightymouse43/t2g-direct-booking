@@ -4,6 +4,7 @@ import { useProperty } from '../hooks/useProperty';
 import PropertyHero from '../components/property/PropertyHero';
 import PhotoGallery from '../components/property/PhotoGallery';
 import PropertyDetails from '../components/property/PropertyDetails';
+import PropertyDescription from '../components/property/PropertyDescription';
 import AmenitiesGrid from '../components/property/AmenitiesGrid';
 import ErrorState from '../components/ui/ErrorState';
 
@@ -44,7 +45,6 @@ function PropertyInfo({ property }) {
   const area = property?.living_area;
   const areaType = property?.living_area_type ?? 'sq. ft.';
   const maxPets = property?.max_pets;
-  const externalName = property?.external_name;
   const publicUrl = property?.public_url;
 
   const rows = [
@@ -54,16 +54,10 @@ function PropertyInfo({ property }) {
     maxPets != null && { label: 'Pets', value: maxPets > 0 ? `Up to ${maxPets} pet${maxPets !== 1 ? 's' : ''}` : 'No pets', icon: PawPrint },
   ].filter(Boolean);
 
-  if (!rows.length && !externalName && !publicUrl) return null;
+  if (!rows.length && !publicUrl) return null;
 
   return (
     <div>
-      <h2 className="mb-4 font-heading text-xl font-bold text-t2g-navy">About this property</h2>
-
-      {externalName && (
-        <p className="mb-4 font-body text-base leading-relaxed text-t2g-slate/80">{externalName}</p>
-      )}
-
       {rows.length > 0 && (
         <div className="mb-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
           {rows.map(({ label, value, icon: Icon }) => (
@@ -232,6 +226,7 @@ export default function PropertyDetailPage() {
           <div className="space-y-10">
             {photos.length > 0 && <PhotoGallery photos={photos} />}
             <PropertyDetails property={property} />
+            <PropertyDescription description={property.description} />
             <PropertyInfo property={property} />
             {amenities.length > 0 && <AmenitiesGrid amenities={amenities} />}
           </div>

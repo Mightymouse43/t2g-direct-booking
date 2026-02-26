@@ -1,11 +1,8 @@
 /**
  * GET /api/property?id=:propertyId
- * Returns a single property with a synthetic photos array built from
- * the thumbnail URLs already present on the property object.
- *
- * Note: OwnerRez /v2/listings (full photo gallery + descriptions) requires
- * the "WordPress Plugin + Integrated Websites" premium add-on which is not
- * currently enabled. We use thumbnail_url_large as the single high-res photo.
+ * Returns a single property merged with listing data (full photos + description)
+ * from OwnerRez /v2/listings — requires "WordPress Plugin + Integrated Websites" add-on.
+ * Falls back to synthetic single-thumbnail photos if the listing call fails.
  */
 export default async function handler(req, res) {
   if (req.method === 'OPTIONS') {
@@ -34,7 +31,11 @@ export default async function handler(req, res) {
   const base = 'https://api.ownerrez.com/v2';
 
   try {
-    const propRes = await fetch(`${base}/properties/${id}`, { headers });
+    // Fetch property and listing data in parallel
+    const [propRes, listingRes] = await Promise.all([
+      fetch(`${base}/properties/${id}`, { headers }),
+      fetch(`${base}/listings/${id}`, { headers }),
+    ]);
 
     if (!propRes.ok) {
       return res.status(propRes.status).json({ error: `Property ${id} not found` });
@@ -42,21 +43,54 @@ export default async function handler(req, res) {
 
     const property = await propRes.json();
 
-    // Build a synthetic photos array from the thumbnail URLs on the property.
-    // OwnerRez's full photo gallery requires the /v2/listings premium endpoint.
-    const photos = [];
-    if (property.thumbnail_url_large || property.thumbnail_url_medium || property.thumbnail_url) {
-      photos.push({
-        url: property.thumbnail_url_large ?? property.thumbnail_url_medium ?? property.thumbnail_url,
-        large_url: property.thumbnail_url_large ?? null,
-        medium_url: property.thumbnail_url_medium ?? null,
-        thumbnail_url: property.thumbnail_url ?? null,
-      });
+    // Merge listing data if available (full photos + description)
+    let photos = [];
+    let description = null;
+
+    if (listingRes.ok) {
+      const listing = await listingRes.json();
+
+      // Full photo gallery from the listing
+      if (Array.isArray(listing.photos) && listing.photos.length > 0) {
+        photos = listing.photos.map((p) => ({
+          url: p.url ?? p.large_url ?? p.medium_url ?? p.thumbnail_url ?? null,
+          large_url: p.large_url ?? p.url ?? null,
+          medium_url: p.medium_url ?? null,
+          thumbnail_url: p.thumbnail_url ?? null,
+          caption: p.caption ?? p.name ?? null,
+        }));
+      }
+
+      // Description — OwnerRez may return it at different paths
+      description =
+        listing.description ??
+        listing.descriptions?.description ??
+        listing.descriptions?.main ??
+        listing.headline ??
+        null;
+    } else {
+      console.warn(`[api/property] Listing ${id} returned ${listingRes.status} — falling back to thumbnail`);
+    }
+
+    // Fall back to synthetic single-photo array if listing had no photos
+    if (photos.length === 0) {
+      const fallbackUrl =
+        property.thumbnail_url_large ?? property.thumbnail_url_medium ?? property.thumbnail_url ?? null;
+      if (fallbackUrl) {
+        photos.push({
+          url: fallbackUrl,
+          large_url: property.thumbnail_url_large ?? null,
+          medium_url: property.thumbnail_url_medium ?? null,
+          thumbnail_url: property.thumbnail_url ?? null,
+          caption: null,
+        });
+      }
     }
 
     const result = {
       ...property,
       photos,
+      description,
     };
 
     res.setHeader('Cache-Control', 's-maxage=300, stale-while-revalidate=60');
