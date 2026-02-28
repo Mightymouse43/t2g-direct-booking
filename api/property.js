@@ -1,4 +1,23 @@
 /**
+ * Decode HTML entities in a plain string (no tags — just entity replacement).
+ * Used for amenity item text that OwnerRez sends with entities like &ndash;
+ */
+function decodeEntities(str) {
+  if (!str) return str;
+  return str
+    .replace(/&ndash;/gi, '–')
+    .replace(/&mdash;/gi, '—')
+    .replace(/&amp;/gi, '&')
+    .replace(/&lt;/gi, '<')
+    .replace(/&gt;/gi, '>')
+    .replace(/&quot;/gi, '"')
+    .replace(/&apos;/gi, "'")
+    .replace(/&nbsp;/gi, ' ')
+    .replace(/&#(\d+);/g, (_, n) => String.fromCharCode(Number(n)))
+    .replace(/&[a-z]+;/gi, '');
+}
+
+/**
  * Convert an HTML string to plain text, preserving paragraph and line breaks.
  */
 function htmlToText(html) {
@@ -102,7 +121,7 @@ export default async function handler(req, res) {
             category: cat.caption ?? cat.type ?? 'General',
             type: cat.type ?? null,
             items: (cat.amenities ?? [])
-              .map((a) => (typeof a === 'string' ? a : a?.text ?? a?.name ?? null))
+              .map((a) => decodeEntities(typeof a === 'string' ? a : a?.text ?? a?.name ?? null))
               .filter(Boolean),
           }))
           .filter((g) => g.items.length > 0);
