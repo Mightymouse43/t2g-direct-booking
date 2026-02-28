@@ -204,7 +204,12 @@ export default function PropertyDetailPage() {
   if (!property) return null;
 
   const photos = property.photos ?? [];
-  const amenities = property.amenities ?? property.amenity_list ?? [];
+  const amenities =
+    property.amenities ??
+    property.amenity_list ??
+    property.amenityList ??
+    property.features ??
+    [];
   const amenityGroups = property.amenityGroups ?? [];
   const city = property?.city ?? property?.location ?? '';
   const state = property?.state ?? '';

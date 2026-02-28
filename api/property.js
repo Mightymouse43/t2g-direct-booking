@@ -64,6 +64,13 @@ export default async function handler(req, res) {
 
     const property = await propRes.json();
 
+    // DEBUG: log property-level amenity fields so we can see the real shape
+    const propAmenityKeys = Object.keys(property).filter((k) => k.toLowerCase().includes('amenit'));
+    console.log(`[api/property] property amenity fields for ${id}:`, propAmenityKeys);
+    if (propAmenityKeys.length) {
+      propAmenityKeys.forEach((k) => console.log(`  property.${k} =`, JSON.stringify(property[k]).slice(0, 200)));
+    }
+
     // Merge listing data if available (full photos + description + amenity groups)
     let photos = [];
     let description = null;
@@ -71,6 +78,11 @@ export default async function handler(req, res) {
 
     if (listingRes.ok) {
       const listing = await listingRes.json();
+
+      // DEBUG: log all top-level listing keys + any amenity-related fields
+      console.log(`[api/property] listing keys for ${id}:`, Object.keys(listing));
+      const listingAmenityKeys = Object.keys(listing).filter((k) => k.toLowerCase().includes('amenit'));
+      listingAmenityKeys.forEach((k) => console.log(`  listing.${k} =`, JSON.stringify(listing[k]).slice(0, 300)));
 
       // Full photo gallery from the listing
       if (Array.isArray(listing.photos) && listing.photos.length > 0) {
@@ -93,7 +105,14 @@ export default async function handler(req, res) {
       description = htmlToText(rawDescription);
 
       // Structured amenity groups from the listing
-      const listingAmenities = listing.amenities ?? listing.amenity_list ?? [];
+      // Try every known field name OwnerRez might use
+      const listingAmenities =
+        listing.amenities ??
+        listing.amenity_list ??
+        listing.amenityList ??
+        listing.features ??
+        listing.property_amenities ??
+        [];
       if (Array.isArray(listingAmenities) && listingAmenities.length > 0) {
         const groupMap = new Map();
         for (const a of listingAmenities) {
