@@ -12,12 +12,14 @@ function formatDate(dateStr) {
   return d.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
 }
 
-/* ─── Initials from name ────────────────────────────────── */
-function getInitials(firstName, lastName) {
-  return [(firstName ?? '').charAt(0), (lastName ?? '').charAt(0)]
-    .filter(Boolean)
-    .join('')
-    .toUpperCase() || '?';
+/* ─── Initials from listing site ────────────────────────── */
+function getInitials(listingSite) {
+  return (listingSite ?? 'G').charAt(0).toUpperCase();
+}
+
+/* ─── Display name from listing site ───────────────────── */
+function getDisplayName(listingSite) {
+  return listingSite ? `${listingSite} Guest` : 'Verified Guest';
 }
 
 /* ─── Star row ──────────────────────────────────────────── */
@@ -37,8 +39,8 @@ function StarRow({ rating, size = 'sm' }) {
 
 /* ─── Individual review card ────────────────────────────── */
 function ReviewCard({ review, isFirst }) {
-  const name = [review.first_name, review.last_name].filter(Boolean).join(' ') || 'Guest';
-  const initials = getInitials(review.first_name, review.last_name);
+  const name = getDisplayName(review.listing_site);
+  const initials = getInitials(review.listing_site);
 
   return (
     <div className={`${isFirst ? '' : 'border-t border-t2g-mist pt-5'}`}>
@@ -52,20 +54,20 @@ function ReviewCard({ review, isFirst }) {
           {/* Name + date row */}
           <div className="flex items-center justify-between gap-2 flex-wrap">
             <span className="font-body text-sm font-semibold text-t2g-navy">{name}</span>
-            <span className="font-body text-xs text-t2g-slate/60">{formatDate(review.created_date)}</span>
+            <span className="font-body text-xs text-t2g-slate/60">{formatDate(review.date)}</span>
           </div>
 
           {/* Stars */}
-          {review.rating != null && (
+          {review.stars != null && (
             <div className="mt-1">
-              <StarRow rating={review.rating} />
+              <StarRow rating={review.stars} />
             </div>
           )}
 
           {/* Comment */}
-          {review.comments && (
+          {review.body && (
             <p className="mt-2 font-body text-sm leading-relaxed text-t2g-slate/80">
-              {review.comments}
+              {review.body}
             </p>
           )}
         </div>
