@@ -12,14 +12,9 @@ function formatDate(dateStr) {
   return d.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
 }
 
-/* ─── Initials from listing site ────────────────────────── */
-function getInitials(listingSite) {
-  return (listingSite ?? 'G').charAt(0).toUpperCase();
-}
-
-/* ─── Display name from listing site ───────────────────── */
-function getDisplayName(listingSite) {
-  return listingSite ? `${listingSite} Guest` : 'Verified Guest';
+/* ─── Display name ──────────────────────────────────────── */
+function getDisplayName() {
+  return 'Verified Guest';
 }
 
 /* ─── Star row ──────────────────────────────────────────── */
@@ -39,8 +34,8 @@ function StarRow({ rating, size = 'sm' }) {
 
 /* ─── Individual review card ────────────────────────────── */
 function ReviewCard({ review, isFirst }) {
-  const name = getDisplayName(review.listing_site);
-  const initials = getInitials(review.listing_site);
+  const name = getDisplayName();
+  const initials = 'V';
 
   return (
     <div className={`${isFirst ? '' : 'border-t border-t2g-mist pt-5'}`}>
