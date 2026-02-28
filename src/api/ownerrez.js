@@ -37,3 +37,9 @@ export function fetchAvailability(propertyId, from, to) {
   if (to) params.set('to', to);
   return apiFetch(`/availability?${params.toString()}`);
 }
+
+/** Fetch guest reviews for a property */
+export function fetchReviews(propertyId) {
+  const params = new URLSearchParams({ propertyId });
+  return apiFetch(`/reviews?${params.toString()}`);
+}
