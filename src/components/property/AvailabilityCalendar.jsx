@@ -1,6 +1,7 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Calendar, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useAvailability } from '../../hooks/useAvailability';
+import { fetchRates } from '../../api/ownerrez';
 
 const DAYS = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
 const MONTH_NAMES = [
@@ -8,42 +9,86 @@ const MONTH_NAMES = [
   'July', 'August', 'September', 'October', 'November', 'December',
 ];
 
+/* Parse "YYYY-MM-DD..." as local midnight — avoids UTC off-by-one errors */
+function parseLocalDate(str) {
+  const [y, m, d] = str.slice(0, 10).split('-').map(Number);
+  return new Date(y, m - 1, d);
+}
+
+/* Format a local Date as "YYYY-MM-DD" without UTC conversion */
+function toISO(date) {
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+}
+
 /**
- * Build a Set of 'YYYY-MM-DD' strings for all blocked/booked dates.
- * Handles two OwnerRez response shapes:
- *   - Array/items of { from, to } date-range blocks
- *   - Array/items of { date, available: false } per-day records
+ * Build Set<'YYYY-MM-DD'> of blocked nights.
+ * OwnerRez returns only blocked ranges — available periods are NOT in the list.
+ * Skips items explicitly typed as available just in case.
  */
 function buildBlockedSet(data) {
   const blocked = new Set();
   if (!data) return blocked;
-
   const items = Array.isArray(data) ? data : (data.items ?? []);
 
   for (const item of items) {
+    const type = (item.type ?? '').toLowerCase().trim();
+    if (type === 'a' || type === 'available' || type === 'open') continue;
+
     if (item.from && item.to) {
-      // Expand a date-range block into individual days
-      const cur = new Date(item.from);
-      const end = new Date(item.to);
-      cur.setHours(0, 0, 0, 0);
-      end.setHours(0, 0, 0, 0);
+      const cur = parseLocalDate(item.from);
+      const end = parseLocalDate(item.to);
       while (cur < end) {
-        blocked.add(cur.toISOString().slice(0, 10));
+        blocked.add(toISO(cur));
         cur.setDate(cur.getDate() + 1);
       }
-    } else if (item.date && item.available === false) {
-      blocked.add(item.date.slice(0, 10));
+    } else if (item.date) {
+      if (
+        item.available === false ||
+        type === 'b' || type === 'booking' ||
+        type === 'u' || type === 'unavailable'
+      ) {
+        blocked.add(item.date.slice(0, 10));
+      }
     }
   }
   return blocked;
 }
 
-/* ─── Single month calendar grid ─────────────────────── */
-function MonthGrid({ year, month, blocked, today }) {
-  const daysInMonth = new Date(year, month + 1, 0).getDate();
-  const startDow = new Date(year, month, 1).getDay(); // 0 = Sunday
+/**
+ * Build Map<'YYYY-MM-DD', number> of nightly rates.
+ * Tries several possible OwnerRez field names; uses weekend rate on Fri/Sat if provided.
+ */
+function buildRateMap(data) {
+  const map = new Map();
+  if (!data) return map;
+  const items = Array.isArray(data) ? data : (data.items ?? []);
 
-  // Leading empty cells + day numbers
+  for (const item of items) {
+    if (!item.from || !item.to) continue;
+    const base = item.nightly_rate ?? item.base_nightly_rate ?? item.rate ?? null;
+    if (!base) continue;
+    const weekend = item.weekend_nightly_rate ?? item.weekend_rate ?? null;
+
+    const cur = parseLocalDate(item.from);
+    const end = parseLocalDate(item.to);
+
+    while (cur < end) {
+      const iso = toISO(cur);
+      if (!map.has(iso)) {
+        const dow = cur.getDay();
+        map.set(iso, weekend && (dow === 5 || dow === 6) ? weekend : base);
+      }
+      cur.setDate(cur.getDate() + 1);
+    }
+  }
+  return map;
+}
+
+/* ─── Single month grid ─────────────────────────────── */
+function MonthGrid({ year, month, blocked, rates, today }) {
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const startDow = new Date(year, month, 1).getDay();
+
   const cells = [
     ...Array.from({ length: startDow }, () => null),
     ...Array.from({ length: daysInMonth }, (_, i) => i + 1),
@@ -55,35 +100,60 @@ function MonthGrid({ year, month, blocked, today }) {
         {MONTH_NAMES[month]} {year}
       </p>
 
-      <div className="grid grid-cols-7 gap-y-1">
-        {/* Day-of-week headers */}
+      <div className="grid grid-cols-7 gap-x-0.5 gap-y-0.5">
         {DAYS.map((d) => (
           <div key={d} className="pb-2 text-center font-body text-xs font-medium text-t2g-slate/40">
             {d}
           </div>
         ))}
 
-        {/* Day cells */}
         {cells.map((day, i) => {
-          if (!day) return <div key={`empty-${i}`} />;
+          if (day === null) return <div key={`e${i}`} />;
 
           const iso = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
           const date = new Date(year, month, day);
           const isPast = date < today;
-          const isBooked = blocked.has(iso);
+          const isToday = date.getTime() === today.getTime();
+          const isBooked = !isPast && blocked.has(iso);
+          const rate = !isPast && !isBooked ? rates.get(iso) : null;
 
-          let cls = 'mx-auto flex h-8 w-8 items-center justify-center rounded-full font-body text-sm';
-          if (isPast) {
-            cls += ' text-t2g-slate/25';
-          } else if (isBooked) {
-            cls += ' text-t2g-slate/40 line-through';
-          } else {
-            cls += ' bg-t2g-teal/10 font-medium text-t2g-navy';
+          /* Past */
+          if (isPast && !isToday) {
+            return (
+              <div key={iso} className="flex flex-col items-center py-1.5">
+                <span className="font-body text-sm leading-none text-t2g-slate/25">{day}</span>
+              </div>
+            );
           }
 
+          /* Booked */
+          if (isBooked) {
+            return (
+              <div key={iso} className="flex flex-col items-center rounded py-1.5 bg-t2g-navy">
+                <span className="font-body text-sm font-semibold leading-none text-white">{day}</span>
+              </div>
+            );
+          }
+
+          /* Available (today or future) */
           return (
-            <div key={iso}>
-              <div className={cls}>{day}</div>
+            <div
+              key={iso}
+              className={`flex flex-col items-center rounded py-1.5 ${
+                isToday ? 'ring-2 ring-t2g-teal ring-offset-1' : ''
+              }`}
+            >
+              <span className={`font-body text-sm font-semibold leading-none ${isToday ? 'text-t2g-teal' : 'text-t2g-navy'}`}>
+                {day}
+              </span>
+              {rate != null && (
+                <span
+                  className="mt-0.5 leading-none text-t2g-teal"
+                  style={{ fontSize: '9px', fontFamily: 'inherit' }}
+                >
+                  ${Math.round(rate)}
+                </span>
+              )}
             </div>
           );
         })}
@@ -92,16 +162,16 @@ function MonthGrid({ year, month, blocked, today }) {
   );
 }
 
-/* ─── Loading skeleton ────────────────────────────────── */
+/* ─── Loading skeleton ───────────────────────────────── */
 function CalendarSkeleton() {
   return (
     <div className="grid grid-cols-1 gap-8 md:grid-cols-2 animate-pulse">
       {[0, 1].map((m) => (
-        <div key={m} className="space-y-3">
+        <div key={m} className="space-y-2">
           <div className="mx-auto h-4 w-28 rounded bg-t2g-mist/60" />
-          <div className="grid grid-cols-7 gap-1">
+          <div className="grid grid-cols-7 gap-0.5">
             {Array.from({ length: 35 }).map((_, i) => (
-              <div key={i} className="mx-auto h-8 w-8 rounded-full bg-t2g-mist/60" />
+              <div key={i} className="h-9 w-full rounded bg-t2g-mist/40" />
             ))}
           </div>
         </div>
@@ -110,34 +180,40 @@ function CalendarSkeleton() {
   );
 }
 
-/* ─── Main export ─────────────────────────────────────── */
+/* ─── Main export ────────────────────────────────────── */
 export default function AvailabilityCalendar({ propertyId }) {
-  // Stable "today" — never changes after mount
   const [today] = useState(() => {
     const d = new Date();
     d.setHours(0, 0, 0, 0);
     return d;
   });
 
-  // Fetch next 12 months of availability upfront so navigation is instant
-  const fromStr = useMemo(() => today.toISOString().slice(0, 10), [today]);
+  // Stable date strings — fetch next 12 months upfront so navigation is instant
+  const fromStr = useMemo(() => toISO(today), [today]);
   const toStr = useMemo(() => {
     const t = new Date(today);
     t.setFullYear(t.getFullYear() + 1);
-    return t.toISOString().slice(0, 10);
+    return toISO(t);
   }, [today]);
 
   const { availability, loading } = useAvailability(propertyId, fromStr, toStr);
+
+  const [ratesData, setRatesData] = useState(null);
+  useEffect(() => {
+    if (!propertyId) return;
+    fetchRates(propertyId, fromStr, toStr)
+      .then(setRatesData)
+      .catch(() => {}); // rates are optional — calendar still works without them
+  }, [propertyId, fromStr, toStr]);
 
   const [viewYear, setViewYear] = useState(today.getFullYear());
   const [viewMonth, setViewMonth] = useState(today.getMonth());
 
   const blocked = useMemo(() => buildBlockedSet(availability), [availability]);
+  const rates = useMemo(() => buildRateMap(ratesData), [ratesData]);
 
-  // Second visible month
   const month2 = viewMonth === 11 ? 0 : viewMonth + 1;
   const year2 = viewMonth === 11 ? viewYear + 1 : viewYear;
-
   const isAtToday = viewYear === today.getFullYear() && viewMonth === today.getMonth();
 
   const handlePrev = () => {
@@ -151,20 +227,15 @@ export default function AvailabilityCalendar({ propertyId }) {
     else setViewMonth((m) => m + 1);
   };
 
-  const handleToday = () => {
-    setViewYear(today.getFullYear());
-    setViewMonth(today.getMonth());
-  };
-
   return (
     <section>
       <div className="mb-6 flex items-center gap-3">
         <Calendar className="h-5 w-5 text-t2g-teal" />
-        <h2 className="font-heading text-2xl font-bold text-t2g-navy">Availability</h2>
+        <h2 className="font-heading text-2xl font-bold text-t2g-navy">Availability & Rates</h2>
       </div>
 
       <div className="rounded-2xl border border-t2g-mist bg-white p-6 shadow-sm">
-        {/* Navigation bar */}
+        {/* Navigation */}
         <div className="mb-6 flex items-center justify-between">
           <button
             onClick={handlePrev}
@@ -177,14 +248,12 @@ export default function AvailabilityCalendar({ propertyId }) {
 
           {!isAtToday ? (
             <button
-              onClick={handleToday}
+              onClick={() => { setViewYear(today.getFullYear()); setViewMonth(today.getMonth()); }}
               className="font-body text-xs font-semibold text-t2g-teal transition-colors hover:text-t2g-navy"
             >
               Today
             </button>
-          ) : (
-            <div />
-          )}
+          ) : <div />}
 
           <button
             onClick={handleNext}
@@ -195,25 +264,30 @@ export default function AvailabilityCalendar({ propertyId }) {
           </button>
         </div>
 
-        {/* Calendar grid */}
+        {/* Grids */}
         {loading ? (
           <CalendarSkeleton />
         ) : (
           <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
-            <MonthGrid year={viewYear} month={viewMonth} blocked={blocked} today={today} />
-            <MonthGrid year={year2} month={month2} blocked={blocked} today={today} />
+            <MonthGrid year={viewYear} month={viewMonth} blocked={blocked} rates={rates} today={today} />
+            <MonthGrid year={year2} month={month2} blocked={blocked} rates={rates} today={today} />
           </div>
         )}
 
         {/* Legend */}
-        <div className="mt-6 flex flex-wrap gap-6 border-t border-t2g-mist pt-4">
+        <div className="mt-6 flex flex-wrap items-center gap-6 border-t border-t2g-mist pt-4">
           <div className="flex items-center gap-2">
-            <div className="h-5 w-5 rounded-full bg-t2g-teal/10" />
-            <span className="font-body text-xs text-t2g-slate/60">Available</span>
+            <div className="flex h-6 w-6 items-center justify-center rounded bg-t2g-navy">
+              <span className="font-body text-xs font-semibold text-white">8</span>
+            </div>
+            <span className="font-body text-xs text-t2g-slate/60">Unavailable</span>
           </div>
           <div className="flex items-center gap-2">
-            <span className="font-body text-xs text-t2g-slate/40 line-through">15</span>
-            <span className="font-body text-xs text-t2g-slate/60">Booked</span>
+            <div className="flex h-6 w-6 flex-col items-center justify-center rounded">
+              <span className="font-body text-xs font-semibold text-t2g-navy leading-none">8</span>
+              <span className="text-t2g-teal leading-none" style={{ fontSize: '9px' }}>$142</span>
+            </div>
+            <span className="font-body text-xs text-t2g-slate/60">Available · nightly rate</span>
           </div>
         </div>
       </div>
