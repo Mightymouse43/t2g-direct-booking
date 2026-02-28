@@ -16,23 +16,34 @@ import {
 } from 'lucide-react';
 
 /* ─── Category metadata ─────────────────────────────────────── */
+// Keys cover both OwnerRez `type` values and plain English caption names
 const CATEGORY_META = {
-  general:       { label: 'General',       Icon: Home },
-  entertainment: { label: 'Entertainment', Icon: Tv },
-  kitchen:       { label: 'Kitchen',       Icon: UtensilsCrossed },
-  bathroom:      { label: 'Bathroom',      Icon: Bath },
-  outdoor:       { label: 'Outdoor',       Icon: TreePine },
-  safety:        { label: 'Safety',        Icon: ShieldCheck },
-  bedroom:       { label: 'Bedroom',       Icon: BedDouble },
-  family:        { label: 'Family',        Icon: Baby },
-  parking:       { label: 'Parking',       Icon: Car },
-  accessibility: { label: 'Accessibility', Icon: Users },
+  // OwnerRez type values (exact, lowercase)
+  propertytype:     { Icon: Home },
+  accommodation:    { Icon: Home },
+  checkintype:      { Icon: Lock },
+  houserules:       { Icon: ShieldCheck },
+  general:          { Icon: Home },
+  entertainment:    { Icon: Tv },
+  kitchen:          { Icon: UtensilsCrossed },
+  bathroom:         { Icon: Bath },
+  outdoor:          { Icon: TreePine },
+  safety:           { Icon: ShieldCheck },
+  bedroom:          { Icon: BedDouble },
+  family:           { Icon: Baby },
+  parking:          { Icon: Car },
+  accessibility:    { Icon: Users },
+  // Plain English caption variants
+  'property type':  { Icon: Home },
+  'check-in type':  { Icon: Lock },
+  'house rules':    { Icon: ShieldCheck },
 };
 
 function getCategoryMeta(rawCategory) {
   if (!rawCategory) return { label: 'General', Icon: Home };
-  const key = rawCategory.toLowerCase().replace(/\s+/g, '');
-  return CATEGORY_META[key] ?? { label: rawCategory, Icon: CheckCircle };
+  const key = rawCategory.toLowerCase().replace(/[\s-]+/g, '');
+  const meta = CATEGORY_META[key] ?? CATEGORY_META[rawCategory.toLowerCase()] ?? {};
+  return { label: rawCategory, Icon: meta.Icon ?? CheckCircle };
 }
 
 /* ─── Single amenity row ────────────────────────────────────── */
@@ -49,8 +60,9 @@ function AmenityItem({ name }) {
 }
 
 /* ─── Category section ──────────────────────────────────────── */
-function CategorySection({ category, items }) {
-  const { label, Icon } = getCategoryMeta(category);
+function CategorySection({ category, type, items }) {
+  // Prefer matching by OwnerRez `type` (e.g. "CheckInType") over caption text
+  const { label, Icon } = getCategoryMeta(type ?? category);
   return (
     <div>
       {/* Category header */}
@@ -115,10 +127,11 @@ export default function AmenitiesGrid({ amenities, amenityGroups }) {
       {/* Category sections */}
       <div className="rounded-2xl border border-t2g-mist bg-white p-6 shadow-sm">
         <div className="space-y-6">
-          {visibleGroups.map(({ category, items }) => (
+          {visibleGroups.map(({ category, type, items }) => (
             <CategorySection
               key={category ?? 'all'}
               category={category}
+              type={type}
               items={items}
             />
           ))}
