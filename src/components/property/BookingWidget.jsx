@@ -1,4 +1,3 @@
-import { useEffect } from 'react';
 
 /**
  * OwnerRez "Booking/Inquiry" widget — URL-based property matching.
@@ -11,15 +10,6 @@ import { useEffect } from 'react';
 const BOOKING_WIDGET_ID = 'cc7d375f54c44dd4b02fc50f40a8b378';
 
 export default function BookingWidget() {
-  useEffect(() => {
-    // widget.js may already be loaded by AvailabilityCalendar — guard against duplicates
-    if (document.querySelector('script[src*="ownerrez.com/widget.js"]')) return;
-    const s = document.createElement('script');
-    s.src = 'https://app.ownerrez.com/widget.js';
-    s.async = true;
-    document.body.appendChild(s);
-  }, []);
-
   return (
     <div className="rounded-3xl border border-t2g-mist bg-white shadow-lg lg:sticky lg:top-28 overflow-hidden">
       {/* Trust badges */}

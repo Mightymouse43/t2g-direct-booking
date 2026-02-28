@@ -1,4 +1,3 @@
-import { useEffect } from 'react';
 import { Calendar } from 'lucide-react';
 
 /**
@@ -14,15 +13,6 @@ import { Calendar } from 'lucide-react';
 const WIDGET_ID = '8b6d96c4982b4b8f8bcaec86ea561832';
 
 export default function AvailabilityCalendar() {
-  useEffect(() => {
-    // Load widget.js once — guard against duplicate script injection
-    if (document.querySelector('script[src*="ownerrez.com/widget.js"]')) return;
-    const s = document.createElement('script');
-    s.src = 'https://app.ownerrez.com/widget.js';
-    s.async = true;
-    document.body.appendChild(s);
-  }, []);
-
   return (
     <section>
       <div className="mb-6 flex items-center gap-3">

@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { ArrowLeft, ExternalLink, Calendar, Clock, Maximize2, PawPrint, MapPin } from 'lucide-react';
 import { useProperty } from '../hooks/useProperty';
@@ -132,6 +133,22 @@ function MobileBookingBar({ property }) {
 export default function PropertyDetailPage() {
   const { id } = useParams();
   const { property, loading, error, refetch } = useProperty(id);
+
+  // Re-load widget.js once property data is ready so OwnerRez can scan the
+  // correct DOM nodes after client-side React Router navigation.
+  useEffect(() => {
+    if (!property) return;
+    const old = document.querySelector('script[src*="ownerrez.com/widget.js"]');
+    if (old) old.remove();
+    const s = document.createElement('script');
+    s.src = 'https://app.ownerrez.com/widget.js';
+    s.async = true;
+    document.body.appendChild(s);
+    return () => {
+      const script = document.querySelector('script[src*="ownerrez.com/widget.js"]');
+      if (script) script.remove();
+    };
+  }, [property]);
 
   if (loading) return <DetailSkeleton />;
   if (error) {
