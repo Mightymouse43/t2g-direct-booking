@@ -13,6 +13,7 @@ import {
   Users,
   Sparkles,
   CheckCircle,
+  Lock,
 } from 'lucide-react';
 
 /* ─── Category metadata ─────────────────────────────────────── */
