@@ -21,9 +21,10 @@ function toISO(date) {
 }
 
 /**
- * Build Set<'YYYY-MM-DD'> of blocked nights.
- * OwnerRez returns only blocked ranges — available periods are NOT in the list.
- * Skips items explicitly typed as available just in case.
+ * Build Set<'YYYY-MM-DD'> of blocked nights from OwnerRez /v2/bookings response.
+ * Each booking item has arrival_date (check-in) and departure_date (check-out).
+ * Nights blocked = arrival_date up to but NOT including departure_date.
+ * Also handles legacy { from, to } block format just in case.
  */
 function buildBlockedSet(data) {
   const blocked = new Set();
@@ -31,6 +32,18 @@ function buildBlockedSet(data) {
   const items = Array.isArray(data) ? data : (data.items ?? []);
 
   for (const item of items) {
+    // OwnerRez /v2/bookings format: arrival_date / departure_date
+    if (item.arrival_date && item.departure_date) {
+      const cur = parseLocalDate(item.arrival_date);
+      const end = parseLocalDate(item.departure_date);
+      while (cur < end) {
+        blocked.add(toISO(cur));
+        cur.setDate(cur.getDate() + 1);
+      }
+      continue;
+    }
+
+    // Legacy block-range format: { from, to, type }
     const type = (item.type ?? '').toLowerCase().trim();
     if (type === 'a' || type === 'available' || type === 'open') continue;
 
@@ -41,14 +54,8 @@ function buildBlockedSet(data) {
         blocked.add(toISO(cur));
         cur.setDate(cur.getDate() + 1);
       }
-    } else if (item.date) {
-      if (
-        item.available === false ||
-        type === 'b' || type === 'booking' ||
-        type === 'u' || type === 'unavailable'
-      ) {
-        blocked.add(item.date.slice(0, 10));
-      }
+    } else if (item.date && item.available === false) {
+      blocked.add(item.date.slice(0, 10));
     }
   }
   return blocked;

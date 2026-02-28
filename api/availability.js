@@ -1,6 +1,8 @@
 /**
  * GET /api/availability?propertyId=:id&from=YYYY-MM-DD&to=YYYY-MM-DD
- * Returns availability data for the OwnerRez property.
+ * Returns active bookings for a property from OwnerRez /v2/bookings.
+ * NOTE: /v2/availability does not exist in OwnerRez API v2 — bookings are
+ * the correct source for blocked-date data (arrival_date / departure_date).
  *
  * Cache is shorter (60s) because availability changes frequently.
  */
@@ -25,12 +27,15 @@ export default async function handler(req, res) {
   // OwnerRez Basic auth: base64("email:TOKEN")
   const credentials = Buffer.from(`${email}:${token}`).toString('base64');
 
-  // Build OwnerRez availability URL with optional date range
-  const params = new URLSearchParams({ property_id: propertyId });
-  if (from) params.set('from', from);
-  if (to) params.set('to', to);
+  // OwnerRez /v2/bookings: property_ids (plural), status=active, since_utc for start date
+  const params = new URLSearchParams({
+    property_ids: propertyId,
+    status: 'active',
+    page_size: '100',
+  });
+  if (from) params.set('since_utc', from);
 
-  const url = `https://api.ownerrez.com/v2/availability?${params.toString()}`;
+  const url = `https://api.ownerrez.com/v2/bookings?${params.toString()}`;
 
   try {
     const orRes = await fetch(url, {
@@ -43,7 +48,7 @@ export default async function handler(req, res) {
     if (!orRes.ok) {
       const text = await orRes.text();
       console.error('[api/availability] OwnerRez error:', orRes.status, text);
-      return res.status(orRes.status).json({ error: `OwnerRez responded with ${orRes.status}` });
+      return res.status(200).json({ items: [] }); // return empty so calendar renders
     }
 
     const data = await orRes.json();
