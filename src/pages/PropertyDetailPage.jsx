@@ -205,6 +205,7 @@ export default function PropertyDetailPage() {
 
   const photos = property.photos ?? [];
   const amenities = property.amenities ?? property.amenity_list ?? [];
+  const amenityGroups = property.amenityGroups ?? [];
   const city = property?.city ?? property?.location ?? '';
   const state = property?.state ?? '';
   const location = [city, state].filter(Boolean).join(', ');
@@ -251,7 +252,9 @@ export default function PropertyDetailPage() {
             <PropertyDetails property={property} />
             <PropertyDescription description={property.description} />
             <PropertyInfo property={property} />
-            {amenities.length > 0 && <AmenitiesGrid amenities={amenities} />}
+            {(amenityGroups.length > 0 || amenities.length > 0) && (
+              <AmenitiesGrid amenities={amenities} amenityGroups={amenityGroups} />
+            )}
           </div>
 
           {/* ── Right column (desktop sticky) ───────────── */}

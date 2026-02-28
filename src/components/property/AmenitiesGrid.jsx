@@ -1,67 +1,146 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { getAmenityIcon } from '../../utils/amenityIcons';
+import {
+  Home,
+  Tv,
+  UtensilsCrossed,
+  Bath,
+  TreePine,
+  ShieldCheck,
+  BedDouble,
+  Baby,
+  Car,
+  Users,
+  Sparkles,
+  CheckCircle,
+} from 'lucide-react';
 
-const INITIAL_SHOW = 12;
+/* ─── Category metadata ─────────────────────────────────────── */
+const CATEGORY_META = {
+  general:       { label: 'General',       Icon: Home },
+  entertainment: { label: 'Entertainment', Icon: Tv },
+  kitchen:       { label: 'Kitchen',       Icon: UtensilsCrossed },
+  bathroom:      { label: 'Bathroom',      Icon: Bath },
+  outdoor:       { label: 'Outdoor',       Icon: TreePine },
+  safety:        { label: 'Safety',        Icon: ShieldCheck },
+  bedroom:       { label: 'Bedroom',       Icon: BedDouble },
+  family:        { label: 'Family',        Icon: Baby },
+  parking:       { label: 'Parking',       Icon: Car },
+  accessibility: { label: 'Accessibility', Icon: Users },
+};
 
-/**
- * Renders a grid of amenity chips with Lucide icons.
- * Shows up to INITIAL_SHOW items, with a "+ N more" expand button.
- *
- * OwnerRez returns amenities in different shapes depending on the endpoint:
- *   - Array of strings: ["WiFi", "Pool", ...]
- *   - Array of objects: [{ name: "WiFi" }, ...]
- */
-function normalizeAmenities(raw) {
+function getCategoryMeta(rawCategory) {
+  if (!rawCategory) return { label: 'General', Icon: Home };
+  const key = rawCategory.toLowerCase().replace(/\s+/g, '');
+  return CATEGORY_META[key] ?? { label: rawCategory, Icon: CheckCircle };
+}
+
+/* ─── Single amenity row ────────────────────────────────────── */
+function AmenityItem({ name }) {
+  const Icon = getAmenityIcon(name);
+  return (
+    <div className="flex items-center gap-2.5 py-1">
+      <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-t2g-teal/10">
+        <Icon className="h-3.5 w-3.5 text-t2g-teal" />
+      </div>
+      <span className="font-body text-sm text-t2g-navy">{name}</span>
+    </div>
+  );
+}
+
+/* ─── Category section ──────────────────────────────────────── */
+function CategorySection({ category, items }) {
+  const { label, Icon } = getCategoryMeta(category);
+  return (
+    <div>
+      {/* Category header */}
+      <div className="mb-3 flex items-center gap-2">
+        <Icon className="h-4 w-4 text-t2g-teal" />
+        <span className="font-body text-xs font-semibold uppercase tracking-widest text-t2g-teal">
+          {label}
+        </span>
+        <div className="flex-1 border-t border-t2g-mist" />
+      </div>
+
+      {/* Amenity grid */}
+      <div className="grid grid-cols-1 gap-x-6 gap-y-0.5 sm:grid-cols-2 lg:grid-cols-3">
+        {items.map((name) => (
+          <AmenityItem key={name} name={name} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/* ─── Normalise flat amenity list ───────────────────────────── */
+function normalizeFlatList(raw) {
   if (!Array.isArray(raw)) return [];
   return raw
     .map((a) => (typeof a === 'string' ? a : a?.name ?? a?.label ?? null))
     .filter(Boolean);
 }
 
-function AmenityChip({ name }) {
-  const Icon = getAmenityIcon(name);
-  return (
-    <div className="flex items-center gap-2.5 rounded-xl border border-t2g-mist bg-white px-3 py-2.5 shadow-sm">
-      <Icon className="h-4 w-4 shrink-0 text-t2g-teal" />
-      <span className="font-body text-sm text-t2g-navy">{name}</span>
-    </div>
-  );
-}
+/* ─── Main export ───────────────────────────────────────────── */
+const INITIAL_CATEGORY_COUNT = 3;
 
-export default function AmenitiesGrid({ amenities }) {
+export default function AmenitiesGrid({ amenities, amenityGroups }) {
   const [expanded, setExpanded] = useState(false);
-  const items = normalizeAmenities(amenities);
 
-  if (!items.length) return null;
+  // Build groups: prefer categorised data from the API, fall back to flat list
+  const groups = useMemo(() => {
+    if (Array.isArray(amenityGroups) && amenityGroups.length > 0) {
+      return amenityGroups;
+    }
+    const flat = normalizeFlatList(amenities);
+    return flat.length ? [{ category: null, items: flat }] : [];
+  }, [amenityGroups, amenities]);
 
-  const visible = expanded ? items : items.slice(0, INITIAL_SHOW);
-  const remainder = items.length - INITIAL_SHOW;
+  if (!groups.length) return null;
+
+  const totalItems = groups.reduce((sum, g) => sum + g.items.length, 0);
+  const visibleGroups = expanded ? groups : groups.slice(0, INITIAL_CATEGORY_COUNT);
+  const hiddenCategories = groups.length - INITIAL_CATEGORY_COUNT;
 
   return (
-    <div>
-      <h2 className="mb-4 font-heading text-xl font-bold text-t2g-navy">Amenities</h2>
-      <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-4">
-        {visible.map((name) => (
-          <AmenityChip key={name} name={name} />
-        ))}
+    <section>
+      {/* Section header */}
+      <div className="mb-6 flex items-center gap-3">
+        <Sparkles className="h-5 w-5 text-t2g-teal" />
+        <h2 className="font-heading text-2xl font-bold text-t2g-navy">Amenities</h2>
+        <span className="rounded-full bg-t2g-teal/10 px-2.5 py-0.5 font-body text-xs font-semibold text-t2g-teal">
+          {totalItems}
+        </span>
       </div>
 
-      {!expanded && remainder > 0 && (
-        <button
-          onClick={() => setExpanded(true)}
-          className="mt-4 font-heading text-sm font-semibold text-t2g-teal underline underline-offset-2 hover:text-t2g-navy transition-colors"
-        >
-          + {remainder} more amenities
-        </button>
-      )}
-      {expanded && items.length > INITIAL_SHOW && (
-        <button
-          onClick={() => setExpanded(false)}
-          className="mt-4 font-heading text-sm font-semibold text-t2g-teal underline underline-offset-2 hover:text-t2g-navy transition-colors"
-        >
-          Show fewer
-        </button>
-      )}
-    </div>
+      {/* Category sections */}
+      <div className="rounded-2xl border border-t2g-mist bg-white p-6 shadow-sm">
+        <div className="space-y-6">
+          {visibleGroups.map(({ category, items }) => (
+            <CategorySection
+              key={category ?? 'all'}
+              category={category}
+              items={items}
+            />
+          ))}
+        </div>
+
+        {/* Expand / collapse */}
+        {groups.length > INITIAL_CATEGORY_COUNT && (
+          <button
+            onClick={() => setExpanded((v) => !v)}
+            className="mt-6 flex items-center gap-1.5 border-t border-t2g-mist pt-5 font-body text-sm font-semibold text-t2g-teal transition-colors hover:text-t2g-navy"
+          >
+            {expanded ? (
+              <>Show fewer amenities</>
+            ) : (
+              <>
+                Show all {hiddenCategories} more{' '}
+                {hiddenCategories === 1 ? 'category' : 'categories'}
+              </>
+            )}
+          </button>
+        )}
+      </div>
+    </section>
   );
 }

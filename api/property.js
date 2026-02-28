@@ -64,9 +64,10 @@ export default async function handler(req, res) {
 
     const property = await propRes.json();
 
-    // Merge listing data if available (full photos + description)
+    // Merge listing data if available (full photos + description + amenity groups)
     let photos = [];
     let description = null;
+    let amenityGroups = [];
 
     if (listingRes.ok) {
       const listing = await listingRes.json();
@@ -90,6 +91,24 @@ export default async function handler(req, res) {
         listing.headline ??
         null;
       description = htmlToText(rawDescription);
+
+      // Structured amenity groups from the listing
+      const listingAmenities = listing.amenities ?? listing.amenity_list ?? [];
+      if (Array.isArray(listingAmenities) && listingAmenities.length > 0) {
+        const groupMap = new Map();
+        for (const a of listingAmenities) {
+          const name = typeof a === 'string' ? a : (a?.name ?? a?.label ?? null);
+          if (!name) continue;
+          // OwnerRez uses 'kind' or 'category' to indicate grouping
+          const rawKind = a?.kind ?? a?.category ?? a?.type ?? null;
+          const cat = rawKind
+            ? rawKind.charAt(0).toUpperCase() + rawKind.slice(1).replace(/_/g, ' ')
+            : 'General';
+          if (!groupMap.has(cat)) groupMap.set(cat, []);
+          groupMap.get(cat).push(name);
+        }
+        amenityGroups = [...groupMap.entries()].map(([category, items]) => ({ category, items }));
+      }
     } else {
       console.warn(`[api/property] Listing ${id} returned ${listingRes.status} — falling back to thumbnail`);
     }
@@ -113,6 +132,7 @@ export default async function handler(req, res) {
       ...property,
       photos,
       description,
+      amenityGroups,
     };
 
     res.setHeader('Cache-Control', 's-maxage=300, stale-while-revalidate=60');
