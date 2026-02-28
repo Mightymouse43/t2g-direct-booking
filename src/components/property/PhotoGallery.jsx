@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { X, ChevronLeft, ChevronRight, ImageOff } from 'lucide-react';
+import { X, ChevronLeft, ChevronRight, ImageOff, Images } from 'lucide-react';
 
 const PLACEHOLDER = 'https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=800&q=70&auto=format&fit=crop';
 
@@ -90,13 +90,23 @@ function Lightbox({ photos, startIndex, onClose }) {
 /**
  * CSS Grid gallery: 1 large hero + up to 4 thumbnails.
  * Clicking any image opens the lightbox.
+ *
+ * Props:
+ *   photos          — array of photo objects
+ *   wrapperClassName — classes applied to the outer relative wrapper
+ *                      (default: 'overflow-hidden rounded-3xl')
+ *   imgHeight       — CSS height value for the grid (default: '480px' / '360px')
  */
-export default function PhotoGallery({ photos = [] }) {
+export default function PhotoGallery({
+  photos = [],
+  wrapperClassName = 'overflow-hidden rounded-3xl',
+  imgHeight,
+}) {
   const [lightboxIndex, setLightboxIndex] = useState(null);
 
   if (!photos.length) {
     return (
-      <div className="flex h-64 items-center justify-center rounded-3xl bg-t2g-mist/50">
+      <div className={`flex h-64 items-center justify-center bg-t2g-mist/50 ${wrapperClassName}`}>
         <ImageOff className="h-8 w-8 text-t2g-slate/40" />
         <span className="ml-3 font-body text-sm text-t2g-slate/50">No photos available</span>
       </div>
@@ -105,55 +115,63 @@ export default function PhotoGallery({ photos = [] }) {
 
   const shown = photos.slice(0, 5);
   const hasGrid = shown.length > 1;
+  const height = imgHeight ?? (hasGrid ? '480px' : '360px');
 
   return (
     <>
-      <div
-        className={`overflow-hidden rounded-3xl ${
-          hasGrid
-            ? 'grid grid-cols-4 grid-rows-2 gap-2'
-            : ''
-        }`}
-        style={{ height: hasGrid ? '480px' : '360px' }}
-      >
-        {/* Hero — spans full height on left */}
-        <button
-          className={`relative overflow-hidden focus:outline-none ${
-            hasGrid ? 'col-span-2 row-span-2' : 'h-full w-full'
-          }`}
-          onClick={() => setLightboxIndex(0)}
-          aria-label="Open photo gallery"
+      <div className={`relative ${wrapperClassName}`}>
+        <div
+          className={hasGrid ? 'grid grid-cols-4 grid-rows-2 gap-2' : ''}
+          style={{ height }}
         >
-          <img
-            src={getUrl(shown[0])}
-            alt={shown[0]?.caption ?? 'Primary photo'}
-            className="h-full w-full object-cover transition-transform duration-500 hover:scale-105"
-          />
-        </button>
-
-        {/* Thumbnails */}
-        {shown.slice(1).map((photo, i) => (
+          {/* Hero — spans full height on left */}
           <button
-            key={photo.id ?? i}
-            className="relative overflow-hidden focus:outline-none"
-            onClick={() => setLightboxIndex(i + 1)}
-            aria-label={`View photo ${i + 2}`}
+            className={`relative overflow-hidden focus:outline-none ${
+              hasGrid ? 'col-span-2 row-span-2' : 'h-full w-full'
+            }`}
+            onClick={() => setLightboxIndex(0)}
+            aria-label="Open photo gallery"
           >
             <img
-              src={getUrl(photo)}
-              alt={photo.caption ?? `Photo ${i + 2}`}
+              src={getUrl(shown[0])}
+              alt={shown[0]?.caption ?? 'Primary photo'}
               className="h-full w-full object-cover transition-transform duration-500 hover:scale-105"
             />
-            {/* "View all" overlay on the last thumb if more photos exist */}
-            {i === 3 && photos.length > 5 && (
-              <div className="absolute inset-0 flex items-center justify-center bg-t2g-navy/60">
-                <span className="font-heading text-sm font-semibold text-white">
-                  +{photos.length - 5} more
-                </span>
-              </div>
-            )}
           </button>
-        ))}
+
+          {/* Thumbnails */}
+          {shown.slice(1).map((photo, i) => (
+            <button
+              key={photo.id ?? i}
+              className="relative overflow-hidden focus:outline-none"
+              onClick={() => setLightboxIndex(i + 1)}
+              aria-label={`View photo ${i + 2}`}
+            >
+              <img
+                src={getUrl(photo)}
+                alt={photo.caption ?? `Photo ${i + 2}`}
+                className="h-full w-full object-cover transition-transform duration-500 hover:scale-105"
+              />
+              {/* dim last thumb if more photos exist (but not if we're showing the button) */}
+              {i === 3 && photos.length > 5 && (
+                <div className="absolute inset-0 flex items-center justify-center bg-t2g-navy/60">
+                  <span className="font-heading text-sm font-semibold text-white">
+                    +{photos.length - 5} more
+                  </span>
+                </div>
+              )}
+            </button>
+          ))}
+        </div>
+
+        {/* "View All Photos" button — always visible */}
+        <button
+          onClick={() => setLightboxIndex(0)}
+          className="absolute bottom-4 right-4 flex items-center gap-2 rounded-full bg-t2g-navy/80 px-4 py-2.5 font-heading text-sm font-semibold text-white backdrop-blur-sm transition hover:bg-t2g-navy"
+        >
+          <Images className="h-4 w-4" />
+          View All Photos
+        </button>
       </div>
 
       {lightboxIndex !== null && (

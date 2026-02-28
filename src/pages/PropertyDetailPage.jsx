@@ -1,7 +1,6 @@
 import { useParams, Link } from 'react-router-dom';
-import { ArrowLeft, Star, ExternalLink, Calendar, Clock, Maximize2, PawPrint } from 'lucide-react';
+import { ArrowLeft, Star, ExternalLink, Calendar, Clock, Maximize2, PawPrint, MapPin } from 'lucide-react';
 import { useProperty } from '../hooks/useProperty';
-import PropertyHero from '../components/property/PropertyHero';
 import PhotoGallery from '../components/property/PhotoGallery';
 import PropertyDetails from '../components/property/PropertyDetails';
 import PropertyDescription from '../components/property/PropertyDescription';
@@ -14,11 +13,16 @@ import ErrorState from '../components/ui/ErrorState';
 function DetailSkeleton() {
   return (
     <div className="animate-pulse">
-      <div className="h-[55vh] w-full bg-t2g-mist/60" />
+      {/* Full-bleed photo skeleton */}
+      <div className="h-[60vh] w-full bg-t2g-mist/60" />
       <div className="mx-auto max-w-7xl section-padding py-10">
+        {/* Title skeleton */}
+        <div className="mb-8 space-y-3">
+          <div className="h-3 w-28 rounded bg-t2g-mist/60" />
+          <div className="h-9 w-2/3 rounded bg-t2g-mist/60" />
+        </div>
         <div className="grid gap-10 lg:grid-cols-[1fr_380px]">
           <div className="space-y-6">
-            <div className="h-64 rounded-3xl bg-t2g-mist/60" />
             <div className="grid grid-cols-4 gap-3">
               {[...Array(4)].map((_, i) => <div key={i} className="h-20 rounded-2xl bg-t2g-mist/60" />)}
             </div>
@@ -37,7 +41,6 @@ function DetailSkeleton() {
 
 /* ─────────────────────────────────────────────────────────
    Property info section — check-in/out, area, pets, listing link
-   (OwnerRez full descriptions require a premium /v2/listings add-on)
 ───────────────────────────────────────────────────────── */
 function PropertyInfo({ property }) {
   const checkIn = property?.check_in;
@@ -87,7 +90,6 @@ function PropertyInfo({ property }) {
 
 /* ─────────────────────────────────────────────────────────
    Sticky booking panel (right column)
-   Will be replaced by BookingWidget in Phase 7.
 ───────────────────────────────────────────────────────── */
 function BookingPanel({ property }) {
   const price = property?.avg_nightly_rate ?? property?.base_nightly_rate ?? property?.min_rate;
@@ -203,11 +205,20 @@ export default function PropertyDetailPage() {
 
   const photos = property.photos ?? [];
   const amenities = property.amenities ?? property.amenity_list ?? [];
+  const city = property?.city ?? property?.location ?? '';
+  const state = property?.state ?? '';
+  const location = [city, state].filter(Boolean).join(', ');
 
   return (
     <>
-      {/* Hero banner */}
-      <PropertyHero property={property} />
+      {/* ── Full-bleed photo gallery ─────────────────────── */}
+      {photos.length > 0 && (
+        <PhotoGallery
+          photos={photos}
+          wrapperClassName="overflow-hidden"
+          imgHeight="clamp(400px, 60vh, 640px)"
+        />
+      )}
 
       <div className="mx-auto max-w-7xl section-padding pb-24 pt-8 lg:pb-12">
         {/* Back link */}
@@ -219,12 +230,24 @@ export default function PropertyDetailPage() {
           Back to all properties
         </Link>
 
-        {/* Two-column layout */}
+        {/* Property title + location */}
+        <div className="mb-8">
+          {location && (
+            <p className="mb-2 flex items-center gap-1.5 font-body text-sm text-t2g-teal">
+              <MapPin className="h-4 w-4" />
+              {location}
+            </p>
+          )}
+          <h1 className="font-heading text-3xl font-bold text-t2g-navy md:text-4xl lg:text-5xl">
+            {property.name ?? 'Property Details'}
+          </h1>
+        </div>
+
+        {/* ── Two-column layout ───────────────────────────── */}
         <div className="grid gap-10 lg:grid-cols-[1fr_380px] lg:items-start">
 
           {/* ── Left column ─────────────────────────────── */}
           <div className="space-y-10">
-            {photos.length > 0 && <PhotoGallery photos={photos} />}
             <PropertyDetails property={property} />
             <PropertyDescription description={property.description} />
             <PropertyInfo property={property} />
