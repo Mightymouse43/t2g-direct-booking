@@ -46,15 +46,3 @@ export function fetchReviews(propertyId) {
   return apiFetch(`/reviews${qs ? `?${qs}` : ''}`);
 }
 
-/**
- * Fetch rate periods for a property (used by AvailabilityCalendar for per-day pricing).
- * @param {string|number} propertyId
- * @param {string} [from] YYYY-MM-DD
- * @param {string} [to]   YYYY-MM-DD
- */
-export function fetchRates(propertyId, from, to) {
-  const params = new URLSearchParams({ propertyId });
-  if (from) params.set('from', from);
-  if (to) params.set('to', to);
-  return apiFetch(`/rates?${params.toString()}`);
-}

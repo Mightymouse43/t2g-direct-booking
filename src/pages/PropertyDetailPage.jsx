@@ -259,7 +259,7 @@ export default function PropertyDetailPage() {
           <div className="space-y-10">
             <PropertyDetails property={property} />
             <PropertyDescription description={property.description} />
-            <AvailabilityCalendar propertyId={id} />
+            <AvailabilityCalendar />
             <PropertyInfo property={property} />
             <PropertyMap property={property} />
             {(amenityGroups.length > 0 || amenities.length > 0) && (
