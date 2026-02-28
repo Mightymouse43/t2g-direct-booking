@@ -38,8 +38,10 @@ export function fetchAvailability(propertyId, from, to) {
   return apiFetch(`/availability?${params.toString()}`);
 }
 
-/** Fetch guest reviews for a property */
+/** Fetch guest reviews. Pass propertyId to filter by property, or omit for all. */
 export function fetchReviews(propertyId) {
-  const params = new URLSearchParams({ propertyId });
-  return apiFetch(`/reviews?${params.toString()}`);
+  const params = new URLSearchParams();
+  if (propertyId) params.set('propertyId', propertyId);
+  const qs = params.toString();
+  return apiFetch(`/reviews${qs ? `?${qs}` : ''}`);
 }
