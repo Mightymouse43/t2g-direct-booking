@@ -5,6 +5,7 @@ import PhotoGallery from '../components/property/PhotoGallery';
 import PropertyDetails from '../components/property/PropertyDetails';
 import PropertyDescription from '../components/property/PropertyDescription';
 import AmenitiesGrid from '../components/property/AmenitiesGrid';
+import PropertyMap from '../components/property/PropertyMap';
 import PropertyReviews from '../components/property/PropertyReviews';
 import ErrorState from '../components/ui/ErrorState';
 
@@ -258,6 +259,7 @@ export default function PropertyDetailPage() {
             <PropertyDetails property={property} />
             <PropertyDescription description={property.description} />
             <PropertyInfo property={property} />
+            <PropertyMap property={property} />
             {(amenityGroups.length > 0 || amenities.length > 0) && (
               <AmenitiesGrid amenities={amenities} amenityGroups={amenityGroups} />
             )}
