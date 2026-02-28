@@ -1,11 +1,12 @@
 import { useParams, Link } from 'react-router-dom';
-import { ArrowLeft, Star, ExternalLink, Calendar, Clock, Maximize2, PawPrint, MapPin } from 'lucide-react';
+import { ArrowLeft, ExternalLink, Calendar, Clock, Maximize2, PawPrint, MapPin } from 'lucide-react';
 import { useProperty } from '../hooks/useProperty';
 import PhotoGallery from '../components/property/PhotoGallery';
 import PropertyDetails from '../components/property/PropertyDetails';
 import PropertyDescription from '../components/property/PropertyDescription';
 import AmenitiesGrid from '../components/property/AmenitiesGrid';
 import AvailabilityCalendar from '../components/property/AvailabilityCalendar';
+import BookingWidget from '../components/property/BookingWidget';
 import PropertyMap from '../components/property/PropertyMap';
 import PropertyReviews from '../components/property/PropertyReviews';
 import ErrorState from '../components/ui/ErrorState';
@@ -91,70 +92,6 @@ function PropertyInfo({ property }) {
   );
 }
 
-/* ─────────────────────────────────────────────────────────
-   Sticky booking panel (right column)
-───────────────────────────────────────────────────────── */
-function BookingPanel({ property }) {
-  const price = property?.avg_nightly_rate ?? property?.base_nightly_rate ?? property?.min_rate;
-  const orBookingUrl = property?.booking_url ?? null;
-
-  return (
-    <div className="rounded-3xl border border-t2g-mist bg-white p-6 shadow-lg lg:sticky lg:top-28">
-      {/* Price */}
-      <div className="mb-5 border-b border-t2g-mist pb-5">
-        {price != null ? (
-          <p className="font-heading text-2xl font-bold text-t2g-navy">
-            From{' '}
-            <span className="text-3xl">${Number(price).toLocaleString()}</span>
-            <span className="font-normal text-base text-t2g-slate/60"> / night</span>
-          </p>
-        ) : (
-          <p className="font-body text-t2g-slate/60">Contact for pricing</p>
-        )}
-        <div className="mt-2 flex items-center gap-1.5 font-body text-sm text-t2g-slate/70">
-          <Star className="h-4 w-4 fill-t2g-sand stroke-t2g-sand" />
-          <span>Superhost · Direct booking</span>
-        </div>
-      </div>
-
-      {/* Booking CTA */}
-      {orBookingUrl ? (
-        <a
-          href={orBookingUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex w-full items-center justify-center gap-2 rounded-2xl bg-t2g-teal px-6 py-3.5 font-heading text-sm font-semibold text-white transition hover:bg-t2g-teal/90 shadow-md"
-        >
-          <Calendar className="h-4 w-4" />
-          Check Availability &amp; Book
-          <ExternalLink className="h-3.5 w-3.5 opacity-70" />
-        </a>
-      ) : (
-        <a
-          href={`mailto:tenants2guest@gmail.com?subject=Booking enquiry: ${encodeURIComponent(property?.name ?? 'Property')}`}
-          className="flex w-full items-center justify-center gap-2 rounded-2xl bg-t2g-teal px-6 py-3.5 font-heading text-sm font-semibold text-white transition hover:bg-t2g-teal/90 shadow-md"
-        >
-          <Calendar className="h-4 w-4" />
-          Request a Booking
-        </a>
-      )}
-
-      {/* Trust badges */}
-      <div className="mt-5 space-y-2.5 rounded-2xl bg-t2g-mist/40 p-4">
-        {[
-          'No OTA markups — book direct & save',
-          'Instant booking confirmation',
-          '24 / 7 local host support',
-        ].map((t) => (
-          <p key={t} className="flex items-start gap-2 font-body text-xs text-t2g-slate/80">
-            <span className="mt-0.5 h-4 w-4 shrink-0 rounded-full bg-t2g-teal/20 text-center text-[10px] leading-4 text-t2g-teal">✓</span>
-            {t}
-          </p>
-        ))}
-      </div>
-    </div>
-  );
-}
 
 /* ─────────────────────────────────────────────────────────
    Mobile sticky bottom bar
@@ -270,7 +207,7 @@ export default function PropertyDetailPage() {
 
           {/* ── Right column (desktop sticky) ───────────── */}
           <div className="hidden lg:block">
-            <BookingPanel property={property} />
+            <BookingWidget />
           </div>
         </div>
       </div>
