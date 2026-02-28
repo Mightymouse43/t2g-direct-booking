@@ -125,7 +125,7 @@ export default function PrimeLocation() {
                   <Star key={i} className="h-4 w-4 fill-t2g-mustard text-t2g-mustard" />
                 ))}
               </div>
-              <span className="font-body text-sm text-white/60">5.0 · 200+ verified stays</span>
+              <span className="font-body text-sm text-white/60">4.8 · 900+ verified stays</span>
             </div>
 
             {/* CTA */}

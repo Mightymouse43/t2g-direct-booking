@@ -87,7 +87,7 @@ export default function Hero() {
                   <Star key={i} className="h-4 w-4 fill-t2g-mustard text-t2g-mustard" />
                 ))}
               </div>
-              <span className="font-body text-sm text-white/80">5.0 · 200+ reviews</span>
+              <span className="font-body text-sm text-white/80">4.8 · 900+ reviews</span>
             </div>
             <div className="flex items-center gap-2">
               <img

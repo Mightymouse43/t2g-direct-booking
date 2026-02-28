@@ -1,17 +1,9 @@
+import { useEffect, useState } from 'react';
 import SectionLabel from '../ui/SectionLabel';
 import { Star } from 'lucide-react';
+import { fetchReviews } from '../../api/ownerrez';
 
-/**
- * ReviewsSection uses the OwnerRez reviews widget when the widget ID is available.
- * If not configured, falls back to static testimonials.
- *
- * To enable the OwnerRez widget:
- *   1. Go to OwnerRez Dashboard → Widgets → Reviews Widget
- *   2. Copy the widget script/embed code
- *   3. Set VITE_OWNERREZ_REVIEWS_WIDGET_ID in your .env (or hardcode below)
- */
-
-// Fallback static reviews (shown when widget is not configured)
+// Fallback static reviews shown if the API fetch fails or returns too few results
 const STATIC_REVIEWS = [
   {
     author: 'Priya S.',
@@ -44,6 +36,29 @@ function StarRow({ count }) {
 }
 
 export default function ReviewsSection() {
+  const [reviews, setReviews] = useState(STATIC_REVIEWS);
+
+  useEffect(() => {
+    fetchReviews()
+      .then((data) => {
+        const items = Array.isArray(data) ? data : data?.items ?? [];
+        // Pick 5-star reviews with meaningful body text, take first 3
+        const picked = items
+          .filter((r) => r.stars === 5 && r.body && r.body.length > 40)
+          .slice(0, 3)
+          .map((r) => ({
+            author: 'Verified Guest',
+            location: r.listing_site ?? 'Verified Stay',
+            rating: r.stars,
+            text: r.body,
+          }));
+        if (picked.length === 3) setReviews(picked);
+      })
+      .catch(() => {
+        // silently keep static fallback
+      });
+  }, []);
+
   return (
     <section className="bg-t2g-navy section-padding section-y">
       <div className="max-w-6xl mx-auto">
@@ -54,11 +69,11 @@ export default function ReviewsSection() {
           </h2>
         </div>
 
-        {/* Static reviews grid */}
+        {/* Reviews grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {STATIC_REVIEWS.map(({ author, location, rating, text }) => (
+          {reviews.map(({ author, location, rating, text }, i) => (
             <div
-              key={author}
+              key={i}
               className="rounded-3xl border border-white/10 bg-white/5 p-7 backdrop-blur-sm"
             >
               <StarRow count={rating} />
@@ -76,13 +91,13 @@ export default function ReviewsSection() {
         {/* Aggregate stats */}
         <div className="mt-12 flex flex-col md:flex-row items-center justify-center gap-10 border-t border-white/10 pt-10">
           <div className="text-center">
-            <p className="font-heading text-5xl font-black text-white">5.0</p>
+            <p className="font-heading text-5xl font-black text-white">4.8</p>
             <div className="mt-1 flex justify-center"><StarRow count={5} /></div>
             <p className="mt-1 font-body text-xs text-t2g-mist/50">Average Rating</p>
           </div>
           <div className="h-px md:h-12 w-full md:w-px bg-white/10" />
           <div className="text-center">
-            <p className="font-heading text-5xl font-black text-white">200+</p>
+            <p className="font-heading text-5xl font-black text-white">900+</p>
             <p className="mt-1 font-body text-xs text-t2g-mist/50">Verified Reviews</p>
           </div>
           <div className="h-px md:h-12 w-full md:w-px bg-white/10" />

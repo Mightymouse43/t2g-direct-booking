@@ -18,13 +18,11 @@ export default async function handler(req, res) {
   }
 
   const { propertyId } = req.query;
-  if (!propertyId) {
-    return res.status(400).json({ error: 'Missing required query param: propertyId' });
-  }
 
   const credentials = Buffer.from(`${email}:${token}`).toString('base64');
 
-  const params = new URLSearchParams({ property_id: propertyId, page_size: '50' });
+  const params = new URLSearchParams({ page_size: '50' });
+  if (propertyId) params.set('property_id', propertyId);
   const url = `https://api.ownerrez.com/v2/reviews?${params.toString()}`;
 
   try {
