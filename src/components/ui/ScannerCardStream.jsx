@@ -24,7 +24,7 @@ function generateCode(width, height) {
   return out;
 }
 
-const CARD_W = 400;
+const CARD_W = 330;
 const CARD_H = 250;
 const ASCII_COLS = Math.floor(CARD_W / 6.5);
 const ASCII_ROWS = Math.floor(CARD_H / 13);
