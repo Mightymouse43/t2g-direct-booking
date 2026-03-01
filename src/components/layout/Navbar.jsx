@@ -41,7 +41,7 @@ export default function Navbar() {
             <img
               src="/logo.png"
               alt="T2G Vacation Home Rentals"
-              className="h-9 w-auto"
+              className="h-11 w-auto"
             />
           </Link>
 
@@ -55,7 +55,9 @@ export default function Navbar() {
                   className={({ isActive }) =>
                     `font-heading text-sm font-medium transition-colors duration-200
                     ${isActive
-                      ? 'text-t2g-teal'
+                      ? scrolled || !isTransparentPage
+                        ? 'text-t2g-teal'
+                        : 'text-t2g-sand'
                       : scrolled || !isTransparentPage
                         ? 'text-t2g-navy hover:text-t2g-teal'
                         : 'text-white hover:text-t2g-mist'
