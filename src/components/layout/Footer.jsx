@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { MapPin, Phone, Mail } from 'lucide-react';
+import { MapPin, Mail } from 'lucide-react';
 
 // Inline SVGs for brand icons (lucide deprecated social icons in recent versions)
 function IconInstagram() {
@@ -12,13 +12,6 @@ function IconInstagram() {
   );
 }
 
-function IconFacebook() {
-  return (
-    <svg viewBox="0 0 24 24" className="h-4 w-4" fill="currentColor">
-      <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
-    </svg>
-  );
-}
 
 const PROPERTY_LINKS = [
   { to: '/properties', label: 'All Properties' },
@@ -104,30 +97,18 @@ export default function Footer() {
               </li>
               <li>
                 <a
-                  href="mailto:hello@t2grentals.com"
+                  href="mailto:support@tenants2guest.com"
                   className="flex items-center gap-3 font-body text-sm text-t2g-mist/70 hover:text-white transition-colors"
                 >
                   <Mail className="h-4 w-4 shrink-0 text-t2g-teal" />
-                  hello@t2grentals.com
-                </a>
-              </li>
-              <li>
-                <a
-                  href="tel:+1-555-0100"
-                  className="flex items-center gap-3 font-body text-sm text-t2g-mist/70 hover:text-white transition-colors"
-                >
-                  <Phone className="h-4 w-4 shrink-0 text-t2g-teal" />
-                  (555) 010-0100
+                  support@tenants2guest.com
                 </a>
               </li>
             </ul>
             {/* Social */}
             <div className="flex gap-3 pt-2">
-              <a href="#" aria-label="Instagram" className="flex h-9 w-9 items-center justify-center rounded-full bg-white/10 text-t2g-mist/70 hover:bg-t2g-teal hover:text-white transition-all">
+              <a href="https://www.instagram.com/tenants2guest/" target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="flex h-9 w-9 items-center justify-center rounded-full bg-white/10 text-t2g-mist/70 hover:bg-t2g-teal hover:text-white transition-all">
                 <IconInstagram />
-              </a>
-              <a href="#" aria-label="Facebook" className="flex h-9 w-9 items-center justify-center rounded-full bg-white/10 text-t2g-mist/70 hover:bg-t2g-teal hover:text-white transition-all">
-                <IconFacebook />
               </a>
             </div>
           </div>
