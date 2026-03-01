@@ -5,7 +5,7 @@ import * as THREE from 'three';
 const defaultCardImages = [
   'https://images.squarespace-cdn.com/content/v1/5e29bacbc3249f265aa08f37/ee1a80cd-4e72-4ef3-bf08-89fa94639136/Amex+social.jpg?format=2500w',
   'https://u.cubeupload.com/fearthez/b5achasesapphireprefere.png',
-  'https://cdn.kastatic.org/ka-perseus-images/43da3b52a7276626d153624e680421937944c782.png',
+  '/20bill.png',
   'https://cdn.wallethub.com/common/product/images/creditcards/500/bank-of-america-cash-rewards-credit-card-1515128c.jpeg',
 ];
 
