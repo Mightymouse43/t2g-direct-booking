@@ -3,10 +3,9 @@ import * as THREE from 'three';
 
 // Credit card images
 const defaultCardImages = [
-  'https://images.squarespace-cdn.com/content/v1/5e29bacbc3249f265aa08f37/ee1a80cd-4e72-4ef3-bf08-89fa94639136/Amex+social.jpg?format=2500w',
-  'https://u.cubeupload.com/fearthez/b5achasesapphireprefere.png',
+  '/10bill.png',
   '/20bill.png',
-  'https://cdn.wallethub.com/common/product/images/creditcards/500/bank-of-america-cash-rewards-credit-card-1515128c.jpeg',
+  '/100bill.png',
 ];
 
 const ASCII_CHARS =
