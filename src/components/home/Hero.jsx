@@ -22,34 +22,21 @@ export default function Hero() {
       date="San Jose, CA · Silicon Valley"
       scrollToExpand="↓ Scroll to explore"
     >
-      {/* Revealed after video fully expands */}
-      <div className="bg-t2g-navy py-16 px-6 md:px-16">
+      {/* Branding header — dark navy */}
+      <div className="bg-t2g-navy py-14 px-6 md:px-16">
         <div className="max-w-4xl mx-auto text-center">
-
           <span className="font-body text-xs uppercase tracking-[0.2em] text-t2g-sand/70">
             Book Direct &amp; Save 15%
           </span>
-
           <h2 className="mt-3 font-heading text-3xl font-bold leading-tight text-white md:text-4xl lg:text-5xl">
             Modern. Trusted.{' '}
             <span className="luxury-accent text-t2g-sand">Silicon Valley Stays.</span>
           </h2>
-
           <p className="mt-4 max-w-2xl mx-auto font-body text-base text-white/70 md:text-lg">
             Fully furnished vacation rentals and corporate housing in Downtown San Jose,
             Japantown, and near SJC Airport. Skip the OTA fees and book directly with T2G
             for guaranteed lowest rates.
           </p>
-
-          {/* OwnerRez Availability / Property Search Widget */}
-          <div className="mt-10">
-            <div
-              className="ownerrez-widget"
-              data-widget-type="Availability/Property Search Widget - Availability/Property Search"
-              data-widgetId="f16eb17ab61a460baa850e04c59f28d1"
-            />
-          </div>
-
           {/* Social proof */}
           <div className="mt-8 flex flex-wrap items-center justify-center gap-6">
             <div className="flex items-center gap-2">
@@ -69,6 +56,17 @@ export default function Hero() {
               <span className="font-body text-sm text-white/70">Superhost Certified</span>
             </div>
           </div>
+        </div>
+      </div>
+
+      {/* Widget section — white so OwnerRez results are fully readable */}
+      <div className="bg-white py-12 px-6 md:px-16">
+        <div className="max-w-5xl mx-auto">
+          <div
+            className="ownerrez-widget"
+            data-widget-type="Availability/Property Search Widget - Availability/Property Search"
+            data-widgetId="f16eb17ab61a460baa850e04c59f28d1"
+          />
         </div>
       </div>
     </ScrollExpandMedia>
