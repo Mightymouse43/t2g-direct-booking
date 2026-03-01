@@ -12,26 +12,20 @@ const BOOKING_WIDGET_ID = 'cc7d375f54c44dd4b02fc50f40a8b378';
 export default function BookingWidget() {
   return (
     <div className="rounded-3xl border border-t2g-mist bg-white shadow-lg lg:sticky lg:top-28 overflow-hidden">
-      {/* Trust badges */}
-      <div className="px-5 py-4 border-b border-t2g-mist bg-t2g-mist/30">
-        {[
-          'No OTA markups — book direct & save',
-          'Instant booking confirmation',
-          '24 / 7 local host support',
-        ].map((t) => (
-          <p key={t} className="flex items-center gap-2 font-body text-xs text-t2g-slate/80 py-1">
-            <span className="h-4 w-4 shrink-0 rounded-full bg-t2g-teal/20 text-center text-[10px] leading-4 text-t2g-teal">✓</span>
-            {t}
-          </p>
-        ))}
+      {/* Header */}
+      <div className="px-6 py-5 bg-t2g-navy">
+        <h3 className="font-heading text-xl font-bold text-white">Book This Property</h3>
+        <p className="mt-1 font-body text-sm text-white/65">Direct booking · No OTA fees</p>
       </div>
 
-      {/* OwnerRez booking widget — property matched from page URL */}
-      <div
-        className="ownerrez-widget"
-        data-widgetId={BOOKING_WIDGET_ID}
-        data-widget-type="Booking widget - Booking/Inquiry"
-      />
+      {/* OwnerRez booking widget */}
+      <div className="px-6 py-6">
+        <div
+          className="ownerrez-widget"
+          data-widgetId={BOOKING_WIDGET_ID}
+          data-widget-type="Booking widget - Booking/Inquiry"
+        />
+      </div>
     </div>
   );
 }

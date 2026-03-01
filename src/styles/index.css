@@ -82,6 +82,95 @@
   }
 }
 
+/* ─── OwnerRez Widget Overrides ─────────────────────────── */
+/*
+ * The OwnerRez widget is a script+div embed (not an iframe), so our
+ * CSS can override its default styles. Targeting by HTML element type
+ * keeps these selectors robust across OwnerRez version changes.
+ */
+
+/* Labels */
+.ownerrez-widget label,
+.ownerrez-widget .control-label {
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  color: #1F3642 !important;
+  letter-spacing: 0.01em !important;
+}
+
+/* Inputs, selects, textarea */
+.ownerrez-widget input[type="text"],
+.ownerrez-widget input[type="email"],
+.ownerrez-widget input[type="tel"],
+.ownerrez-widget input[type="date"],
+.ownerrez-widget input[type="number"],
+.ownerrez-widget select,
+.ownerrez-widget textarea {
+  border-radius: 10px !important;
+  border: 1.5px solid #d0dbe5 !important;
+  padding: 10px 14px !important;
+  font-size: 14px !important;
+  color: #1F3642 !important;
+  background-color: #f9fafb !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+  transition: border-color 0.15s, box-shadow 0.15s !important;
+}
+
+.ownerrez-widget input:focus,
+.ownerrez-widget select:focus,
+.ownerrez-widget textarea:focus {
+  border-color: #008080 !important;
+  outline: none !important;
+  box-shadow: 0 0 0 3px rgba(0, 128, 128, 0.12) !important;
+  background-color: #fff !important;
+}
+
+/* Spacing between field rows */
+.ownerrez-widget .form-group,
+.ownerrez-widget .field-group,
+.ownerrez-widget .or-field {
+  margin-bottom: 14px !important;
+}
+
+/* Buttons */
+.ownerrez-widget button,
+.ownerrez-widget input[type="submit"],
+.ownerrez-widget input[type="button"] {
+  border-radius: 12px !important;
+  padding: 12px 20px !important;
+  font-size: 14px !important;
+  font-weight: 700 !important;
+  cursor: pointer !important;
+  letter-spacing: 0.03em !important;
+  transition: opacity 0.2s !important;
+}
+
+/* Primary action — Book Now */
+.ownerrez-widget button[type="submit"],
+.ownerrez-widget input[type="submit"] {
+  background-color: #1F3642 !important;
+  color: #fff !important;
+  border: none !important;
+}
+
+.ownerrez-widget button[type="submit"]:hover,
+.ownerrez-widget input[type="submit"]:hover {
+  opacity: 0.88 !important;
+}
+
+/* Secondary action — Send Inquiry */
+.ownerrez-widget button:not([type="submit"]):not([type="reset"]) {
+  background-color: transparent !important;
+  border: 1.5px solid #1F3642 !important;
+  color: #1F3642 !important;
+}
+
+.ownerrez-widget button:not([type="submit"]):not([type="reset"]):hover {
+  background-color: #1F3642 !important;
+  color: #fff !important;
+}
+
 /* ─── Scrollbar ──────────────────────────────────────────── */
 ::-webkit-scrollbar {
   width: 6px;

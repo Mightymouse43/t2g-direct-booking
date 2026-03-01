@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { ArrowLeft, ExternalLink, Calendar, Clock, Maximize2, PawPrint, MapPin } from 'lucide-react';
+import { ArrowLeft, Calendar, Clock, Maximize2, PawPrint, MapPin } from 'lucide-react';
 import { useProperty } from '../hooks/useProperty';
 import PhotoGallery from '../components/property/PhotoGallery';
 import PropertyDetails from '../components/property/PropertyDetails';
@@ -45,7 +45,7 @@ function DetailSkeleton() {
 }
 
 /* ─────────────────────────────────────────────────────────
-   Property info section — check-in/out, area, pets, listing link
+   Property info section — check-in/out, area, pets
 ───────────────────────────────────────────────────────── */
 function PropertyInfo({ property }) {
   const checkIn = property?.check_in;
@@ -53,7 +53,6 @@ function PropertyInfo({ property }) {
   const area = property?.living_area;
   const areaType = property?.living_area_type ?? 'sq. ft.';
   const maxPets = property?.max_pets;
-  const publicUrl = property?.public_url;
 
   const rows = [
     checkIn && { label: 'Check-in', value: checkIn, icon: Clock },
@@ -62,33 +61,17 @@ function PropertyInfo({ property }) {
     maxPets != null && { label: 'Pets', value: maxPets > 0 ? `Up to ${maxPets} pet${maxPets !== 1 ? 's' : ''}` : 'No pets', icon: PawPrint },
   ].filter(Boolean);
 
-  if (!rows.length && !publicUrl) return null;
+  if (!rows.length) return null;
 
   return (
-    <div>
-      {rows.length > 0 && (
-        <div className="mb-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
-          {rows.map(({ label, value, icon: Icon }) => (
-            <div key={label} className="flex flex-col gap-1 rounded-2xl border border-t2g-mist bg-white p-4 shadow-sm">
-              <Icon className="h-4 w-4 text-t2g-teal" />
-              <span className="font-heading text-sm font-semibold text-t2g-navy">{value}</span>
-              <span className="font-body text-xs text-t2g-slate/60">{label}</span>
-            </div>
-          ))}
+    <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+      {rows.map(({ label, value, icon: Icon }) => (
+        <div key={label} className="flex flex-col gap-1 rounded-2xl border border-t2g-mist bg-white p-4 shadow-sm">
+          <Icon className="h-4 w-4 text-t2g-teal" />
+          <span className="font-heading text-sm font-semibold text-t2g-navy">{value}</span>
+          <span className="font-body text-xs text-t2g-slate/60">{label}</span>
         </div>
-      )}
-
-      {publicUrl && (
-        <a
-          href={publicUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex items-center gap-1.5 font-body text-sm text-t2g-teal hover:text-t2g-navy transition-colors underline underline-offset-2"
-        >
-          View full listing details
-          <ExternalLink className="h-3.5 w-3.5" />
-        </a>
-      )}
+      ))}
     </div>
   );
 }
