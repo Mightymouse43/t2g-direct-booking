@@ -2,8 +2,7 @@ import { useRef, useEffect } from 'react';
 import gsap from 'gsap';
 import { Star } from 'lucide-react';
 
-const HERO_IMAGE =
-  'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=1800&q=80&auto=format&fit=crop';
+const HERO_IMAGE = '/02.jpg';
 
 export default function Hero() {
   const containerRef = useRef(null);
