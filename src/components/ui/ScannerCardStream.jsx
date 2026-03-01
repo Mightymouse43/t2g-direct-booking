@@ -156,7 +156,7 @@ export default function ScannerCardStream({
     // ── 2-D scanner beam canvas ────────────────────────────────────────────
     const ctx2d = scannerCanvas.getContext('2d');
     scannerCanvas.width = W;
-    scannerCanvas.height = 300;
+    scannerCanvas.height = 200;
 
     const baseMaxParts = 800;
     const scanMaxParts = 2500;
@@ -350,7 +350,7 @@ export default function ScannerCardStream({
   }, [cards, cardGap, friction, scanEffect]);
 
   return (
-    <div ref={containerRef} className="relative w-full h-[260px] overflow-hidden">
+    <div ref={containerRef} className="relative w-full h-[190px] overflow-hidden">
       {/* Keyframe styles injected inline — no styled-jsx needed */}
       <style>{`
         @keyframes t2g-glitch {
@@ -372,18 +372,18 @@ export default function ScannerCardStream({
       {/* Three.js particle field */}
       <canvas
         ref={particleCanvasRef}
-        className="absolute top-1/2 left-0 -translate-y-1/2 w-full h-[250px] z-0 pointer-events-none"
+        className="absolute top-1/2 left-0 -translate-y-1/2 w-full h-[175px] z-0 pointer-events-none"
       />
 
       {/* 2-D scanner beam */}
       <canvas
         ref={scannerCanvasRef}
-        className="absolute top-1/2 left-0 -translate-y-1/2 w-full h-[300px] z-10 pointer-events-none"
+        className="absolute top-1/2 left-0 -translate-y-1/2 w-full h-[200px] z-10 pointer-events-none"
       />
 
       {/* Scanner line — T2G teal glow */}
       <div
-        className={`scs-scan-pulse absolute top-1/2 left-1/2 h-[280px] w-px rounded-full z-20 pointer-events-none transition-opacity duration-300 ${
+        className={`scs-scan-pulse absolute top-1/2 left-1/2 h-[185px] w-px rounded-full z-20 pointer-events-none transition-opacity duration-300 ${
           isScanning ? 'opacity-100' : 'opacity-0'
         }`}
         style={{
