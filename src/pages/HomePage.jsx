@@ -11,9 +11,9 @@ export default function HomePage() {
     <>
       <Hero />
       <PrimeLocation />
+      <HowItWorks />
       <FeaturedProperties />
       <WhyT2G />
-      <HowItWorks />
       <ReviewsSection />
       <FAQSection />
     </>

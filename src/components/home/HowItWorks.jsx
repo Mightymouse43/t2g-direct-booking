@@ -42,7 +42,7 @@ const PERKS = [
   {
     number: '03',
     title: 'Dine & Save Up to 25%',
-    body: 'Present your voucher at any partner restaurant near your rental. Premium local dining at member-only prices — exclusively available during your stay.',
+    body: 'Pick the restaurant that excites you, and your voucher is good there exclusively. Premium local dining at member-only prices — available only during your stay.',
     // Fork and knife
     svg: (
       <svg viewBox="0 0 80 80" className="h-16 w-16" fill="none">
@@ -150,8 +150,23 @@ export default function HowItWorks() {
           ))}
         </div>
 
-        {/* Bottom callout */}
-        <p className="text-center mt-10 font-body text-xs text-t2g-slate/50 tracking-wide uppercase">
+        {/* Restaurant link CTA */}
+        <div className="text-center mt-10">
+          <a
+            href="https://diningdeals.app"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 font-body text-sm font-medium text-t2g-teal hover:text-t2g-navy transition-colors duration-200"
+          >
+            Browse participating restaurants
+            <svg className="h-4 w-4" viewBox="0 0 16 16" fill="none">
+              <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </a>
+        </div>
+
+        {/* Bottom fine print */}
+        <p className="text-center mt-4 font-body text-xs text-t2g-slate/50 tracking-wide uppercase">
           Available exclusively during your stay &nbsp;·&nbsp; Each voucher must be redeemed in a single visit — no splitting across days
         </p>
       </div>
