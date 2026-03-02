@@ -12,9 +12,9 @@ export default function HomePage() {
       <Hero />
       <PrimeLocation />
       <HowItWorks />
+      <ReviewsSection />
       <FeaturedProperties />
       <WhyT2G />
-      <ReviewsSection />
       <FAQSection />
     </>
   );

@@ -23,6 +23,18 @@ const STATIC_REVIEWS = [
     rating: 5,
     text: "Used T2G for extended corporate housing while finding a permanent place. The location near Downtown was ideal and the T2G team was incredibly responsive the entire time.",
   },
+  {
+    author: 'Jennifer K.',
+    location: 'Conference visit, SAP Center San Jose',
+    rating: 5,
+    text: "Stayed for a week-long conference and couldn't have asked for a better home base. Spotless, seamless check-in, and a real kitchen saved me so much on food. Will be my go-to for San Jose trips.",
+  },
+  {
+    author: 'Daniel & Rosa M.',
+    location: 'Extended stay, Downtown San Jose',
+    rating: 5,
+    text: "Needed a place for 3 weeks while our apartment renovated. T2G made it effortless — responsive team, beautiful space, perfect location. Saved money booking directly and would do it every time.",
+  },
 ];
 
 function StarRow({ count }) {
@@ -42,25 +54,41 @@ export default function ReviewsSection() {
     fetchReviews()
       .then((data) => {
         const items = Array.isArray(data) ? data : data?.items ?? [];
-        // Pick 5-star reviews with meaningful body text, take first 3
         const picked = items
           .filter((r) => r.stars === 5 && r.body && r.body.length > 40)
-          .slice(0, 3)
+          .slice(0, 5)
           .map((r) => ({
             author: 'Verified Guest',
             location: r.listing_site ?? 'Verified Stay',
             rating: r.stars,
             text: r.body,
           }));
-        if (picked.length === 3) setReviews(picked);
+        if (picked.length >= 3) setReviews(picked);
       })
       .catch(() => {
         // silently keep static fallback
       });
   }, []);
 
+  // Duplicate cards for seamless infinite loop
+  const marqueeItems = [...reviews, ...reviews];
+
   return (
     <section className="bg-t2g-navy section-padding section-y">
+      <style>{`
+        @keyframes marquee-scroll {
+          0%   { transform: translateX(0); }
+          100% { transform: translateX(-50%); }
+        }
+        .marquee-track {
+          animation: marquee-scroll 45s linear infinite;
+        }
+        .marquee-track:hover {
+          animation-play-state: paused;
+        }
+      `}</style>
+
+      {/* Header */}
       <div className="max-w-6xl mx-auto">
         <div className="text-center mb-14 space-y-4">
           <SectionLabel light>Guest Reviews</SectionLabel>
@@ -68,13 +96,21 @@ export default function ReviewsSection() {
             What Guests <span className="luxury-accent text-t2g-sand">Say</span>
           </h2>
         </div>
+      </div>
 
-        {/* Reviews grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {reviews.map(({ author, location, rating, text }, i) => (
+      {/* Marquee — break out of section-padding to go full-bleed */}
+      <div
+        className="-mx-6 md:-mx-12 lg:-mx-20 overflow-hidden"
+        style={{
+          WebkitMaskImage: 'linear-gradient(to right, transparent, black 8%, black 92%, transparent)',
+          maskImage: 'linear-gradient(to right, transparent, black 8%, black 92%, transparent)',
+        }}
+      >
+        <div className="marquee-track flex gap-6 px-6" style={{ width: 'max-content' }}>
+          {marqueeItems.map(({ author, location, rating, text }, i) => (
             <div
               key={i}
-              className="rounded-3xl border border-white/10 bg-white/5 p-7 backdrop-blur-sm"
+              className="w-[340px] shrink-0 rounded-3xl border border-white/10 bg-white/5 p-7 backdrop-blur-sm"
             >
               <StarRow count={rating} />
               <p className="mt-4 font-body text-sm leading-relaxed text-t2g-mist/80 italic">
@@ -87,8 +123,10 @@ export default function ReviewsSection() {
             </div>
           ))}
         </div>
+      </div>
 
-        {/* Aggregate stats */}
+      {/* Aggregate stats */}
+      <div className="max-w-6xl mx-auto">
         <div className="mt-12 flex flex-col md:flex-row items-center justify-center gap-10 border-t border-white/10 pt-10">
           <div className="text-center">
             <p className="font-heading text-5xl font-black text-white">4.8</p>
