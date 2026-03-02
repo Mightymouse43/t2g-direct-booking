@@ -5,53 +5,55 @@ import SectionLabel from '../ui/SectionLabel';
 
 gsap.registerPlugin(ScrollTrigger);
 
-const STEPS = [
+const PERKS = [
   {
     number: '01',
-    title: 'Browse & Choose',
-    body: 'Explore our curated collection of San Jose furnished rentals. Filter by bedrooms, guests, and location to find your perfect home.',
-    // Rotating compass SVG
+    title: 'A Perk Only T2G Guests Get',
+    body: "Stay with us and you're in. Our Dining Deals program is exclusive to T2G guests — travelers staying anywhere else simply don't have access.",
+    // Calendar with checkmark
     svg: (
       <svg viewBox="0 0 80 80" className="h-16 w-16" fill="none">
-        <circle cx="40" cy="40" r="36" stroke="#2E8B8E" strokeWidth="2" opacity="0.3" />
-        <circle cx="40" cy="40" r="28" stroke="#2E8B8E" strokeWidth="1.5" opacity="0.5" />
-        <g className="compass-needle">
-          <path d="M40 14 L44 40 L40 46 L36 40Z" fill="#2E8B8E" />
-          <path d="M40 66 L44 40 L40 34 L36 40Z" fill="#1F3642" opacity="0.5" />
-        </g>
-        <circle cx="40" cy="40" r="4" fill="#2E8B8E" />
+        <rect x="14" y="22" width="52" height="44" rx="6" stroke="#2E8B8E" strokeWidth="2" opacity="0.35" />
+        <rect x="14" y="22" width="52" height="15" rx="6" fill="#2E8B8E" opacity="0.1" />
+        <line x1="28" y1="15" x2="28" y2="28" stroke="#2E8B8E" strokeWidth="2.5" strokeLinecap="round" opacity="0.55" />
+        <line x1="52" y1="15" x2="52" y2="28" stroke="#2E8B8E" strokeWidth="2.5" strokeLinecap="round" opacity="0.55" />
+        <path className="cal-check" d="M27 49 L35 57 L53 40" stroke="#2E8B8E" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" opacity="0.85" />
       </svg>
     ),
   },
   {
     number: '02',
-    title: 'Book Securely',
-    body: 'Complete your reservation directly on our site. No OTA markup — just transparent pricing and secure PCI-compliant payment.',
+    title: 'Get Your Dining Code',
+    body: 'Your reservation comes with a personal guest code. Use it to claim up to 2 exclusive vouchers redeemable at our hand-picked local restaurants.',
+    // Ticket with % symbol
     svg: (
       <svg viewBox="0 0 80 80" className="h-16 w-16" fill="none">
-        <rect x="14" y="20" width="52" height="40" rx="6" stroke="#2E8B8E" strokeWidth="2" opacity="0.3" />
-        <rect x="14" y="32" width="52" height="2" fill="#2E8B8E" opacity="0.3" />
-        <g className="scan-laser">
-          <rect x="14" y="40" width="52" height="1.5" fill="#2E8B8E" opacity="0.8" />
-        </g>
-        <circle cx="26" cy="52" r="4" fill="#2E8B8E" opacity="0.6" />
-        <rect x="34" y="50" width="18" height="4" rx="2" fill="#2E8B8E" opacity="0.3" />
+        <path
+          d="M10 30 Q10 24 16 24 L64 24 Q70 24 70 30 L70 34 Q64 34 64 40 Q64 46 70 46 L70 50 Q70 56 64 56 L16 56 Q10 56 10 50 L10 46 Q16 46 16 40 Q16 34 10 34 Z"
+          stroke="#2E8B8E" strokeWidth="2" opacity="0.4" fill="none"
+        />
+        <line x1="26" y1="26" x2="26" y2="54" stroke="#2E8B8E" strokeWidth="1.5" strokeDasharray="3 2" opacity="0.3" />
+        <circle className="pct-symbol" cx="37" cy="36" r="4" stroke="#2E8B8E" strokeWidth="1.5" opacity="0.75" />
+        <circle className="pct-symbol" cx="49" cy="47" r="4" stroke="#2E8B8E" strokeWidth="1.5" opacity="0.75" />
+        <line className="pct-symbol" x1="34" y1="50" x2="52" y2="33" stroke="#2E8B8E" strokeWidth="1.5" strokeLinecap="round" opacity="0.75" />
       </svg>
     ),
   },
   {
     number: '03',
-    title: 'Arrive & Enjoy',
-    body: 'Receive your check-in details, settle into your fully furnished San Jose rental, and enjoy the T2G experience — backed by 24/7 local support.',
+    title: 'Dine & Save Up to 25%',
+    body: 'Present your voucher at any partner restaurant near your rental. Premium local dining at member-only prices — exclusively available during your stay.',
+    // Fork and knife
     svg: (
       <svg viewBox="0 0 80 80" className="h-16 w-16" fill="none">
-        <g className="wave-group">
-          <path d="M10 50 Q25 38 40 50 Q55 62 70 50" stroke="#2E8B8E" strokeWidth="2.5" strokeLinecap="round" opacity="0.9" />
-          <path d="M10 42 Q25 30 40 42 Q55 54 70 42" stroke="#2E8B8E" strokeWidth="2" strokeLinecap="round" opacity="0.6" />
-          <path d="M10 58 Q25 46 40 58 Q55 70 70 58" stroke="#2E8B8E" strokeWidth="1.5" strokeLinecap="round" opacity="0.3" />
+        <g className="utensils-group">
+          <line x1="29" y1="18" x2="29" y2="62" stroke="#2E8B8E" strokeWidth="2.5" strokeLinecap="round" opacity="0.7" />
+          <line x1="23" y1="18" x2="23" y2="34" stroke="#2E8B8E" strokeWidth="2" strokeLinecap="round" opacity="0.45" />
+          <line x1="35" y1="18" x2="35" y2="34" stroke="#2E8B8E" strokeWidth="2" strokeLinecap="round" opacity="0.45" />
+          <path d="M23 34 Q29 40 35 34" stroke="#2E8B8E" strokeWidth="1.5" fill="none" opacity="0.5" />
+          <line x1="51" y1="18" x2="51" y2="62" stroke="#2E8B8E" strokeWidth="2.5" strokeLinecap="round" opacity="0.7" />
+          <path d="M51 18 C57 20 60 27 57 33 L51 35" stroke="#2E8B8E" strokeWidth="2" strokeLinecap="round" fill="none" opacity="0.55" />
         </g>
-        <circle cx="40" cy="28" r="10" stroke="#2E8B8E" strokeWidth="2" opacity="0.5" />
-        <path d="M36 28 L39 31 L44 25" stroke="#2E8B8E" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
       </svg>
     ),
   },
@@ -62,35 +64,37 @@ export default function HowItWorks() {
 
   useEffect(() => {
     const ctx = gsap.context(() => {
-      // Compass rotation
-      gsap.to('.compass-needle', {
-        rotation: 360,
-        transformOrigin: '50% 50%',
-        duration: 8,
-        ease: 'none',
-        repeat: -1,
-      });
-
-      // Scan laser Y oscillation
-      gsap.to('.scan-laser', {
-        y: 10,
-        duration: 1.5,
+      // Calendar checkmark subtle pulse
+      gsap.to('.cal-check', {
+        scale: 1.12,
+        transformOrigin: '40px 48px',
+        duration: 1.3,
         ease: 'sine.inOut',
         yoyo: true,
         repeat: -1,
       });
 
-      // Wave pulsing
-      gsap.to('.wave-group path', {
-        opacity: (i) => [0.9, 0.6, 0.3][i % 3] * 0.4 + 0.1,
-        duration: 1.2,
+      // Ticket % symbol shimmer
+      gsap.to('.pct-symbol', {
+        opacity: 0.35,
+        duration: 0.9,
         ease: 'sine.inOut',
         yoyo: true,
         repeat: -1,
-        stagger: 0.2,
+        stagger: 0.15,
       });
 
-      // Step cards — reliable direct querySelectorAll approach
+      // Fork & knife gentle sway
+      gsap.to('.utensils-group', {
+        rotation: 6,
+        transformOrigin: '40px 40px',
+        duration: 2,
+        ease: 'sine.inOut',
+        yoyo: true,
+        repeat: -1,
+      });
+
+      // Step cards scroll reveal
       const steps = Array.from(sectionRef.current?.querySelectorAll('.how-step') ?? []);
       if (steps.length) {
         gsap.set(steps, { opacity: 0, y: 50 });
@@ -114,20 +118,20 @@ export default function HowItWorks() {
   }, []);
 
   return (
-    <section id="how-it-works" ref={sectionRef} className="section-padding section-y bg-t2g-cloud">
+    <section id="dining-deals" ref={sectionRef} className="section-padding section-y bg-t2g-cloud">
       <div className="max-w-5xl mx-auto">
         <div className="text-center mb-16 space-y-4">
-          <SectionLabel>Simple Process</SectionLabel>
+          <SectionLabel>Member Exclusive</SectionLabel>
           <h2 className="font-heading text-4xl font-bold text-t2g-navy md:text-5xl">
-            How It <span className="luxury-accent text-t2g-teal">Works</span>
+            Exclusive Dining <span className="luxury-accent text-t2g-teal">Deals</span>
           </h2>
-          <p className="font-body text-t2g-slate/70 max-w-md mx-auto">
-            Three steps from browsing to checked in.
+          <p className="font-body text-t2g-slate/70 max-w-lg mx-auto">
+            Save up to 25% at hand-picked local restaurants — a perk reserved for T2G guests only.
           </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {STEPS.map(({ number, title, body, svg }) => (
+          {PERKS.map(({ number, title, body, svg }) => (
             <div
               key={number}
               className="how-step relative rounded-3xl bg-white p-8 shadow-sm text-center"
@@ -145,6 +149,11 @@ export default function HowItWorks() {
             </div>
           ))}
         </div>
+
+        {/* Bottom callout */}
+        <p className="text-center mt-10 font-body text-xs text-t2g-slate/50 tracking-wide uppercase">
+          Available exclusively during your stay &nbsp;·&nbsp; Each voucher must be redeemed in a single visit — no splitting across days
+        </p>
       </div>
     </section>
   );
