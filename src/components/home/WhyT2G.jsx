@@ -110,8 +110,8 @@ export default function WhyT2G() {
               </div>
             </div>
 
-            {/* Right: Scanner stream */}
-            <div className="flex-1 flex items-center">
+            {/* Right: Scanner stream — hidden on mobile (Three.js perf + 400px cards) */}
+            <div className="hidden lg:flex flex-1 items-center">
               <ScannerCardStream initialSpeed={120} direction={-1} repeat={5} />
             </div>
 

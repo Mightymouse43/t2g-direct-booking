@@ -88,7 +88,10 @@ function MobileBookingBar({ property }) {
     : `mailto:tenants2guest@gmail.com?subject=Booking enquiry: ${encodeURIComponent(property?.name ?? 'Property')}`;
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-30 border-t border-t2g-mist bg-white px-4 py-3 shadow-2xl lg:hidden">
+    <div
+      className="fixed bottom-0 left-0 right-0 z-30 border-t border-t2g-mist bg-white px-4 shadow-2xl lg:hidden"
+      style={{ paddingTop: '12px', paddingBottom: 'max(12px, env(safe-area-inset-bottom))' }}
+    >
       <div className="mx-auto flex max-w-lg items-center justify-between gap-4">
         {price != null && (
           <p className="font-heading text-lg font-bold text-t2g-navy">
