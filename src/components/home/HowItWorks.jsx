@@ -205,7 +205,7 @@ export default function HowItWorks() {
             className="flex w-full items-center justify-center gap-2 rounded-2xl bg-t2g-sand px-5 py-3.5 font-heading text-sm font-semibold text-t2g-navy shadow-md active:opacity-80"
           >
             <Calendar className="h-4 w-4" />
-            Book Now &amp; Save 15%
+            Book Now
           </a>
         </div>
       </div>
