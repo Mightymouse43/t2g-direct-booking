@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import Hero from '../components/home/Hero';
 import PrimeLocation from '../components/home/PrimeLocation';
 import FeaturedProperties from '../components/home/FeaturedProperties';
@@ -7,6 +8,10 @@ import ReviewsSection from '../components/home/ReviewsSection';
 import FAQSection from '../components/home/FAQSection';
 
 export default function HomePage() {
+  useEffect(() => {
+    document.title = 'T2G Vacation Rentals — Book Direct in San Jose, CA';
+  }, []);
+
   return (
     <>
       <Hero />

@@ -41,6 +41,8 @@ export default function ScannerCardStream({
 
   // Ref so animation loop always reads current pause state (no stale closure)
   const isPausedRef = useRef(false);
+  // Pause all GPU/CPU work when component is scrolled off-screen
+  const isVisibleRef = useRef(true);
 
   const containerRef = useRef(null);
   const cardLineRef = useRef(null);
@@ -275,6 +277,10 @@ export default function ScannerCardStream({
 
     // ── Animation loop ────────────────────────────────────────────────────
     const animate = (now) => {
+      rafId = requestAnimationFrame(animate);
+      // Skip all GPU/CPU work while off-screen
+      if (!isVisibleRef.current) return;
+
       const dt = (now - stream.current.lastTime) / 1000;
       stream.current.lastTime = now;
 
@@ -325,15 +331,21 @@ export default function ScannerCardStream({
         ctx2d.fill();
       });
       ctx2d.globalAlpha = 1;
-
-      rafId = requestAnimationFrame(animate);
     };
 
     rafId = requestAnimationFrame(animate);
 
+    // ── Pause when scrolled off-screen ────────────────────────────────────
+    const visObs = new IntersectionObserver(
+      ([entry]) => { isVisibleRef.current = entry.isIntersecting; },
+      { threshold: 0 }
+    );
+    visObs.observe(container);
+
     // ── Cleanup ───────────────────────────────────────────────────────────
     return () => {
       cancelAnimationFrame(rafId);
+      visObs.disconnect();
       cardLine.removeEventListener('mousedown', handleMouseDown);
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('mouseup', handleMouseUp);

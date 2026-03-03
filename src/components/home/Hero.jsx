@@ -52,6 +52,7 @@ export default function Hero() {
                 src="/superhost-emblem.jpg"
                 alt="Airbnb Superhost"
                 className="h-7 w-auto rounded"
+                loading="lazy"
               />
               <span className="font-body text-sm text-white/70">Superhost Certified</span>
             </div>

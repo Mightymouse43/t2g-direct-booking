@@ -120,6 +120,16 @@ export default function PropertyDetailPage() {
   const { id } = useParams();
   const { property, loading, error, refetch } = useProperty(id);
 
+  // Update page title once property name is known; restore on unmount.
+  useEffect(() => {
+    if (!property) return;
+    const prev = document.title;
+    document.title = property.name
+      ? `${property.name} | T2G Vacation Rentals`
+      : 'Property | T2G Vacation Rentals';
+    return () => { document.title = prev; };
+  }, [property?.name]);
+
   // Re-load widget.js once property data is ready so OwnerRez can scan the
   // correct DOM nodes after client-side React Router navigation.
   useEffect(() => {

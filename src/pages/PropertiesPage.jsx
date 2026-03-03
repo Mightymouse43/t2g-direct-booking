@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useProperties } from '../hooks/useProperties';
 import PropertyFilters from '../components/properties/PropertyFilters';
 import PropertyGrid from '../components/properties/PropertyGrid';
@@ -17,6 +17,10 @@ function applyFilters(properties, { bedrooms, maxGuests }) {
 export default function PropertiesPage() {
   const { properties, loading, error, refetch } = useProperties();
   const [filters, setFilters] = useState(DEFAULT_FILTERS);
+
+  useEffect(() => {
+    document.title = 'All Properties | T2G Vacation Rentals San Jose';
+  }, []);
 
   const filtered = useMemo(
     () => applyFilters(properties, filters),

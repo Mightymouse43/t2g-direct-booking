@@ -19,6 +19,18 @@ const LOCATIONS = [
 export default function PrimeLocation() {
   const sectionRef = useRef(null);
   const [sceneLoaded, setSceneLoaded] = useState(false);
+  const [iframeReady, setIframeReady] = useState(false);
+
+  // Defer iframe load until section is near viewport — avoids loading the
+  // heavy Spline WebGL scene for visitors who never scroll this far.
+  useEffect(() => {
+    const obs = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) setIframeReady(true); },
+      { rootMargin: '400px' }
+    );
+    if (sectionRef.current) obs.observe(sectionRef.current);
+    return () => obs.disconnect();
+  }, []);
 
   useEffect(() => {
     const ctx = gsap.context(() => {
@@ -175,21 +187,22 @@ export default function PrimeLocation() {
                 iframe taller than its container and shifting it up by CROP_PX.
                 The container's overflow-hidden clips the bars out of view.
               */}
-              <iframe
-                src={SPLINE_SCENE_URL}
-                title="T2G Silicon Valley 3D Map"
-                frameBorder="0"
-                allowFullScreen
-                onLoad={() => setSceneLoaded(true)}
-                style={{
-                  border: 'none',
-                  position: 'absolute',
-                  top: '-54px',
-                  left: 0,
-                  width: '100%',
-                  height: 'calc(100% + 108px)',
-                }}
-              />
+              {iframeReady && (
+                <iframe
+                  src={SPLINE_SCENE_URL}
+                  title="T2G Silicon Valley 3D Map"
+                  allowFullScreen
+                  onLoad={() => setSceneLoaded(true)}
+                  style={{
+                    border: 'none',
+                    position: 'absolute',
+                    top: '-54px',
+                    left: 0,
+                    width: '100%',
+                    height: 'calc(100% + 108px)',
+                  }}
+                />
+              )}
 
               {/* Badge sits inside the frame, z-20 keeps it above the iframe */}
               <div className="absolute bottom-3 right-3 z-20 flex items-center gap-2 rounded-2xl border border-white/10 bg-t2g-navy/90 px-4 py-2.5 shadow-xl backdrop-blur-md">

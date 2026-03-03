@@ -151,6 +151,7 @@ export default function PhotoGallery({
                 src={getUrl(photo)}
                 alt={photo.caption ?? `Photo ${i + 2}`}
                 className="h-full w-full object-cover transition-transform duration-500 hover:scale-105"
+                loading="lazy"
               />
               {/* dim last thumb if more photos exist (but not if we're showing the button) */}
               {i === 3 && photos.length > 5 && (
