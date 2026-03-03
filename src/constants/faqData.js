@@ -1,7 +1,7 @@
 export const FAQ_DATA = [
   {
     q: "Why should I book directly instead of through Airbnb or VRBO?",
-    a: "Booking directly with T2G saves you 15% or more by eliminating OTA service fees. You also get direct access to our team for personalized support, flexible payment options, and exclusive perks like discounts for extended stays and returning guests.",
+    a: "Booking directly with T2G saves you 15% or more by eliminating OTA service fees. You also get exclusive perks like discounts for extended stays and returning guests.",
   },
   {
     q: "Where are your properties located in San Jose?",
@@ -9,11 +9,11 @@ export const FAQ_DATA = [
   },
   {
     q: "Are your properties suitable for business travelers and corporate housing?",
-    a: "Absolutely. Our properties are fully furnished and designed with business travelers in mind. Every unit includes high-speed Wi-Fi (500+ Mbps), a dedicated workspace, full kitchen, in-unit laundry, and on-site parking. We also offer extended stay and corporate relocation packages.",
+    a: "Absolutely. Our properties are fully furnished and designed with business travelers in mind. Every unit includes high-speed Wi-Fi (500+ Mbps), a dedicated workspace, full kitchen, in-unit laundry, and on-site parking (check listing for availability). We also offer extended stay and corporate relocation packages.",
   },
   {
     q: "What is your cancellation policy?",
-    a: "Cancellation policies vary by property and booking length. The exact policy is displayed on each property page before you confirm your reservation. Direct bookings typically come with more flexibility than OTA bookings.",
+    a: "Cancellation policies vary by property and booking length. The exact policy is displayed on each property page before you confirm your reservation.",
   },
   {
     q: "Do you offer monthly or extended stay rates?",
@@ -25,6 +25,6 @@ export const FAQ_DATA = [
   },
   {
     q: "What happens if I have an issue during my stay?",
-    a: "Our team is available 24/7 during your stay. You will receive direct contact details at the time of booking confirmation. We are committed to making your stay exceptional from check-in to check-out.",
+    a: "Our team is attentive and responds to every issue promptly. You will receive direct contact details at the time of booking confirmation. We are committed to making your stay exceptional from check-in to check-out.",
   },
 ];

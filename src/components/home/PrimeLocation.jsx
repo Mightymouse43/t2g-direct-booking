@@ -1,7 +1,7 @@
 import { useRef, useEffect, useState } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { MapPin, Wifi, Star, Building2 } from 'lucide-react';
+import { MapPin, Plane, Star, Building2 } from 'lucide-react';
 import Button from '../ui/Button';
 import SectionLabel from '../ui/SectionLabel';
 
@@ -13,7 +13,7 @@ const SPLINE_SCENE_URL =
 const LOCATIONS = [
   { icon: Building2, label: 'Downtown San Jose', sub: '5 min to SAP Center' },
   { icon: MapPin,    label: 'Japantown',          sub: 'Walkable dining & culture' },
-  { icon: Wifi,      label: 'SJC Airport',         sub: '10 min door-to-door' },
+  { icon: Plane,     label: 'SJC Airport',         sub: '10–15 min door-to-door' },
 ];
 
 export default function PrimeLocation() {
@@ -93,8 +93,8 @@ export default function PrimeLocation() {
               className="mt-5 font-body text-base text-white/70 leading-relaxed md:text-lg"
             >
               Every T2G property is hand-picked in San Jose's most connected
-              neighborhoods — close to tech campuses, transit, restaurants,
-              and SJC Airport. No wasted commute time.
+              neighborhoods — close to San Jose's convention center, SAP
+              center, transit, restaurants, and SJC Airport. No wasted commute time.
             </p>
 
             {/* Location pills */}
