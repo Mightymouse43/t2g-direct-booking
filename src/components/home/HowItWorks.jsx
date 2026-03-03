@@ -1,6 +1,7 @@
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, useState } from 'react';
 import gsap from 'gsap';
 import ScrollTrigger from 'gsap/ScrollTrigger';
+import { Calendar } from 'lucide-react';
 import SectionLabel from '../ui/SectionLabel';
 
 gsap.registerPlugin(ScrollTrigger);
@@ -61,6 +62,27 @@ const PERKS = [
 
 export default function HowItWorks() {
   const sectionRef = useRef(null);
+  const [showBookBtn, setShowBookBtn] = useState(false);
+
+  // Show sticky CTA once this section scrolls into view; keep visible when scrolled past
+  useEffect(() => {
+    const el = sectionRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setShowBookBtn(true);
+        } else if (entry.boundingClientRect.top > 0) {
+          // Section is still below viewport — not reached yet
+          setShowBookBtn(false);
+        }
+        // If section is above viewport (scrolled past), leave button visible
+      },
+      { threshold: 0 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
     const ctx = gsap.context(() => {
@@ -169,6 +191,23 @@ export default function HowItWorks() {
         <p className="text-center mt-4 font-body text-xs text-t2g-slate/50 tracking-wide uppercase">
           Available exclusively during your stay &nbsp;·&nbsp; Each voucher must be redeemed in a single visit — no splitting across days
         </p>
+      </div>
+
+      {/* Mobile-only sticky Book Now bar — appears once this section is reached */}
+      <div
+        className={`fixed bottom-0 left-0 right-0 z-40 lg:hidden transition-all duration-300
+          ${showBookBtn ? 'translate-y-0 opacity-100' : 'translate-y-full opacity-0'}`}
+        style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
+      >
+        <div className="bg-t2g-navy border-t border-white/10 px-4 py-3 shadow-2xl">
+          <a
+            href="/properties"
+            className="flex w-full items-center justify-center gap-2 rounded-2xl bg-t2g-sand px-5 py-3.5 font-heading text-sm font-semibold text-t2g-navy shadow-md active:opacity-80"
+          >
+            <Calendar className="h-4 w-4" />
+            Book Now &amp; Save 15%
+          </a>
+        </div>
       </div>
     </section>
   );
