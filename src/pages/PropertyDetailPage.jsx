@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { ArrowLeft, Clock, Maximize2, PawPrint, MapPin, Calendar, X } from 'lucide-react';
 import { useProperty } from '../hooks/useProperty';
+import { useSEO, SITE_URL } from '../hooks/useSEO';
 import PhotoGallery from '../components/property/PhotoGallery';
 import PropertyDetails from '../components/property/PropertyDetails';
 import PropertyDescription from '../components/property/PropertyDescription';
@@ -85,15 +86,49 @@ export default function PropertyDetailPage() {
   const { id } = useParams();
   const { property, loading, error, refetch } = useProperty(id);
 
-  // Update page title once property name is known; restore on unmount.
-  useEffect(() => {
-    if (!property) return;
-    const prev = document.title;
-    document.title = property.name
-      ? `${property.name} | T2G Vacation Rentals`
-      : 'Property | T2G Vacation Rentals';
-    return () => { document.title = prev; };
-  }, [property?.name]);
+  // Build per-property SEO data
+  const propertyJsonLd = useMemo(() => {
+    if (!property) return null;
+    const photo = property.photos?.[0];
+    const photoUrl = photo?.url ?? photo?.large_url ?? null;
+    return {
+      '@context': 'https://schema.org',
+      '@type': 'LodgingBusiness',
+      name: property.name ?? 'Vacation Rental — San Jose, CA',
+      description: property.description
+        ? property.description.slice(0, 300)
+        : 'Fully furnished vacation home in San Jose, CA. Book direct with T2G.',
+      url: `${SITE_URL}/property/${id}`,
+      ...(photoUrl && { image: photoUrl }),
+      address: {
+        '@type': 'PostalAddress',
+        addressLocality: property.city ?? 'San Jose',
+        addressRegion: property.state ?? 'CA',
+        addressCountry: 'US',
+      },
+      ...(property.reviewMeta?.average && {
+        aggregateRating: {
+          '@type': 'AggregateRating',
+          ratingValue: String(property.reviewMeta.average),
+          reviewCount: String(property.reviewMeta.count ?? 1),
+          bestRating: '5',
+        },
+      }),
+    };
+  }, [property, id]);
+
+  useSEO({
+    title: property?.name
+      ? `${property.name} | Vacation Rental San Jose, CA — T2G`
+      : 'Vacation Rental San Jose, CA | T2G',
+    description: property?.description
+      ? property.description.slice(0, 155)
+      : 'Fully furnished vacation home in San Jose, CA. Book directly with T2G and skip Airbnb fees.',
+    path: `/property/${id}`,
+    image: property?.photos?.[0]?.url ?? property?.photos?.[0]?.large_url,
+    jsonLd: propertyJsonLd,
+    jsonLdId: 'json-ld-property',
+  });
 
   // Re-load widget.js once property data is ready so OwnerRez can scan the
   // correct DOM nodes after client-side React Router navigation.

@@ -1,8 +1,9 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import { useProperties } from '../hooks/useProperties';
 import PropertyFilters from '../components/properties/PropertyFilters';
 import PropertyGrid from '../components/properties/PropertyGrid';
 import SectionLabel from '../components/ui/SectionLabel';
+import { useSEO } from '../hooks/useSEO';
 
 const DEFAULT_FILTERS = { bedrooms: null, maxGuests: null };
 
@@ -18,9 +19,12 @@ export default function PropertiesPage() {
   const { properties, loading, error, refetch } = useProperties();
   const [filters, setFilters] = useState(DEFAULT_FILTERS);
 
-  useEffect(() => {
-    document.title = 'All Properties | T2G Vacation Rentals San Jose';
-  }, []);
+  useSEO({
+    title: 'Vacation Rentals in San Jose, CA | Browse All Properties — T2G',
+    description:
+      'Browse all fully furnished vacation homes and corporate housing in San Jose, CA. Filter by bedrooms & guests. Book direct with T2G — no Airbnb or VRBO fees.',
+    path: '/properties',
+  });
 
   const filtered = useMemo(
     () => applyFilters(properties, filters),
