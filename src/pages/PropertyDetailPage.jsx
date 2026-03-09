@@ -1,6 +1,6 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { ArrowLeft, Clock, Maximize2, PawPrint, MapPin } from 'lucide-react';
+import { ArrowLeft, Clock, Maximize2, PawPrint, MapPin, Calendar, X } from 'lucide-react';
 import { useProperty } from '../hooks/useProperty';
 import PhotoGallery from '../components/property/PhotoGallery';
 import PropertyDetails from '../components/property/PropertyDetails';
@@ -111,6 +111,18 @@ export default function PropertyDetailPage() {
     };
   }, [property]);
 
+  const [bookingOpen, setBookingOpen] = useState(false);
+
+  // Lock body scroll when bottom sheet is open
+  useEffect(() => {
+    if (bookingOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => { document.body.style.overflow = ''; };
+  }, [bookingOpen]);
+
   if (loading) return <DetailSkeleton />;
   if (error) {
     return (
@@ -144,7 +156,7 @@ export default function PropertyDetailPage() {
         />
       )}
 
-      <div className="mx-auto max-w-7xl section-padding pb-24 pt-8 lg:pb-12">
+      <div className="mx-auto max-w-7xl section-padding pb-32 pt-8 lg:pb-12">
         {/* Back link */}
         <Link
           to="/properties"
@@ -184,12 +196,64 @@ export default function PropertyDetailPage() {
           </div>
 
           {/* ── Right column (desktop sticky) ───────────── */}
-          <div className="hidden lg:block">
+          <div className="hidden lg:block lg:sticky lg:top-28">
             <BookingWidget />
           </div>
         </div>
       </div>
 
+      {/* ── Mobile sticky bottom bar ─────────────────── */}
+      <div
+        className="fixed bottom-0 left-0 right-0 z-30 border-t border-t2g-mist bg-white lg:hidden"
+        style={{ paddingTop: '12px', paddingBottom: 'max(12px, env(safe-area-inset-bottom))', paddingLeft: '16px', paddingRight: '16px' }}
+      >
+        <div className="mx-auto flex max-w-lg items-center justify-between gap-4">
+          {(property.avg_nightly_rate ?? property.base_nightly_rate ?? property.min_rate) != null && (
+            <p className="font-heading text-lg font-bold text-t2g-navy">
+              ${Number(property.avg_nightly_rate ?? property.base_nightly_rate ?? property.min_rate).toLocaleString()}
+              <span className="font-normal text-sm text-t2g-slate/60"> /night</span>
+            </p>
+          )}
+          <button
+            onClick={() => setBookingOpen(true)}
+            className="flex flex-1 items-center justify-center gap-2 rounded-2xl bg-t2g-teal px-5 py-3 font-heading text-sm font-semibold text-white shadow-md"
+          >
+            <Calendar className="h-4 w-4" />
+            Book Now
+          </button>
+        </div>
+      </div>
+
+      {/* ── Mobile booking bottom sheet ───────────────── */}
+      {/* Backdrop */}
+      <div
+        className={`fixed inset-0 z-40 bg-black/50 lg:hidden transition-opacity duration-300 ${bookingOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}
+        onClick={() => setBookingOpen(false)}
+      />
+      {/* Sheet */}
+      <div
+        className={`fixed bottom-0 left-0 right-0 z-50 lg:hidden rounded-t-3xl bg-white shadow-2xl transition-transform duration-300 ease-out ${bookingOpen ? 'translate-y-0' : 'translate-y-full'}`}
+        style={{ maxHeight: '90vh', overflowY: 'auto', paddingBottom: 'env(safe-area-inset-bottom)' }}
+      >
+        {/* Sheet handle + header */}
+        <div className="sticky top-0 bg-white px-6 pt-4 pb-3 border-b border-t2g-mist/60">
+          <div className="mx-auto mb-3 h-1 w-10 rounded-full bg-t2g-mist" />
+          <div className="flex items-center justify-between">
+            <h2 className="font-heading text-lg font-bold text-t2g-navy">Reserve Your Stay</h2>
+            <button
+              onClick={() => setBookingOpen(false)}
+              className="rounded-full p-1.5 text-t2g-slate/60 hover:bg-t2g-mist/50 transition-colors"
+              aria-label="Close"
+            >
+              <X className="h-5 w-5" />
+            </button>
+          </div>
+        </div>
+        {/* Widget */}
+        <div className="px-6 py-5">
+          <BookingWidget />
+        </div>
+      </div>
     </>
   );
 }
