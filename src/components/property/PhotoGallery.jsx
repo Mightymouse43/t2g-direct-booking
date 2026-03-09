@@ -120,59 +120,87 @@ export default function PhotoGallery({
   return (
     <>
       <div className={`relative ${wrapperClassName}`}>
-        <div
-          className={hasGrid ? 'grid grid-cols-4 grid-rows-2 gap-2' : ''}
-          style={{ height }}
-        >
-          {/* Hero — spans full height on left */}
+
+        {/* ── Mobile: single hero image ─────────────────────── */}
+        <div className="lg:hidden relative" style={{ height: 'clamp(260px, 50vw, 400px)' }}>
           <button
-            className={`relative overflow-hidden focus:outline-none ${
-              hasGrid ? 'col-span-2 row-span-2' : 'h-full w-full'
-            }`}
+            className="h-full w-full overflow-hidden focus:outline-none"
             onClick={() => setLightboxIndex(0)}
             aria-label="Open photo gallery"
           >
             <img
               src={getUrl(shown[0])}
               alt={shown[0]?.caption ?? 'Primary photo'}
-              className="h-full w-full object-cover transition-transform duration-500 hover:scale-105"
+              className="h-full w-full object-cover"
             />
           </button>
-
-          {/* Thumbnails */}
-          {shown.slice(1).map((photo, i) => (
-            <button
-              key={photo.id ?? i}
-              className="relative overflow-hidden focus:outline-none"
-              onClick={() => setLightboxIndex(i + 1)}
-              aria-label={`View photo ${i + 2}`}
-            >
-              <img
-                src={getUrl(photo)}
-                alt={photo.caption ?? `Photo ${i + 2}`}
-                className="h-full w-full object-cover transition-transform duration-500 hover:scale-105"
-                loading="lazy"
-              />
-              {/* dim last thumb if more photos exist (but not if we're showing the button) */}
-              {i === 3 && photos.length > 5 && (
-                <div className="absolute inset-0 flex items-center justify-center bg-t2g-navy/60">
-                  <span className="font-heading text-sm font-semibold text-white">
-                    +{photos.length - 5} more
-                  </span>
-                </div>
-              )}
-            </button>
-          ))}
+          <button
+            onClick={() => setLightboxIndex(0)}
+            className="absolute bottom-4 right-4 flex items-center gap-2 rounded-full bg-t2g-navy/80 px-4 py-2.5 font-heading text-sm font-semibold text-white backdrop-blur-sm transition hover:bg-t2g-navy"
+          >
+            <Images className="h-4 w-4" />
+            View All Photos {photos.length > 1 && `(${photos.length})`}
+          </button>
         </div>
 
-        {/* "View All Photos" button — always visible */}
-        <button
-          onClick={() => setLightboxIndex(0)}
-          className="absolute bottom-4 right-4 flex items-center gap-2 rounded-full bg-t2g-navy/80 px-4 py-2.5 font-heading text-sm font-semibold text-white backdrop-blur-sm transition hover:bg-t2g-navy"
+        {/* ── Desktop: grid layout ──────────────────────────── */}
+        <div
+          className={`hidden lg:block relative`}
         >
-          <Images className="h-4 w-4" />
-          View All Photos
-        </button>
+          <div
+            className={hasGrid ? 'grid grid-cols-4 grid-rows-2 gap-2' : ''}
+            style={{ height }}
+          >
+            {/* Hero — spans full height on left */}
+            <button
+              className={`relative overflow-hidden focus:outline-none ${
+                hasGrid ? 'col-span-2 row-span-2' : 'h-full w-full'
+              }`}
+              onClick={() => setLightboxIndex(0)}
+              aria-label="Open photo gallery"
+            >
+              <img
+                src={getUrl(shown[0])}
+                alt={shown[0]?.caption ?? 'Primary photo'}
+                className="h-full w-full object-cover transition-transform duration-500 hover:scale-105"
+              />
+            </button>
+
+            {/* Thumbnails */}
+            {shown.slice(1).map((photo, i) => (
+              <button
+                key={photo.id ?? i}
+                className="relative overflow-hidden focus:outline-none"
+                onClick={() => setLightboxIndex(i + 1)}
+                aria-label={`View photo ${i + 2}`}
+              >
+                <img
+                  src={getUrl(photo)}
+                  alt={photo.caption ?? `Photo ${i + 2}`}
+                  className="h-full w-full object-cover transition-transform duration-500 hover:scale-105"
+                  loading="lazy"
+                />
+                {i === 3 && photos.length > 5 && (
+                  <div className="absolute inset-0 flex items-center justify-center bg-t2g-navy/60">
+                    <span className="font-heading text-sm font-semibold text-white">
+                      +{photos.length - 5} more
+                    </span>
+                  </div>
+                )}
+              </button>
+            ))}
+          </div>
+
+          {/* "View All Photos" button */}
+          <button
+            onClick={() => setLightboxIndex(0)}
+            className="absolute bottom-4 right-4 flex items-center gap-2 rounded-full bg-t2g-navy/80 px-4 py-2.5 font-heading text-sm font-semibold text-white backdrop-blur-sm transition hover:bg-t2g-navy"
+          >
+            <Images className="h-4 w-4" />
+            View All Photos
+          </button>
+        </div>
+
       </div>
 
       {lightboxIndex !== null && (

@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { ArrowLeft, Calendar, Clock, Maximize2, PawPrint, MapPin } from 'lucide-react';
+import { ArrowLeft, Clock, Maximize2, PawPrint, MapPin } from 'lucide-react';
 import { useProperty } from '../hooks/useProperty';
 import PhotoGallery from '../components/property/PhotoGallery';
 import PropertyDetails from '../components/property/PropertyDetails';
@@ -77,41 +77,6 @@ function PropertyInfo({ property }) {
 }
 
 
-/* ─────────────────────────────────────────────────────────
-   Mobile sticky bottom bar
-───────────────────────────────────────────────────────── */
-function MobileBookingBar({ property }) {
-  const price = property?.avg_nightly_rate ?? property?.base_nightly_rate ?? property?.min_rate;
-  const orBookingUrl = property?.booking_url ?? null;
-  const href = orBookingUrl
-    ? orBookingUrl
-    : `mailto:tenants2guest@gmail.com?subject=Booking enquiry: ${encodeURIComponent(property?.name ?? 'Property')}`;
-
-  return (
-    <div
-      className="fixed bottom-0 left-0 right-0 z-30 border-t border-t2g-mist bg-white px-4 shadow-2xl lg:hidden"
-      style={{ paddingTop: '12px', paddingBottom: 'max(12px, env(safe-area-inset-bottom))' }}
-    >
-      <div className="mx-auto flex max-w-lg items-center justify-between gap-4">
-        {price != null && (
-          <p className="font-heading text-lg font-bold text-t2g-navy">
-            ${Number(price).toLocaleString()}
-            <span className="font-normal text-sm text-t2g-slate/60">/night</span>
-          </p>
-        )}
-        <a
-          href={href}
-          target={orBookingUrl ? '_blank' : undefined}
-          rel={orBookingUrl ? 'noopener noreferrer' : undefined}
-          className="flex flex-1 items-center justify-center gap-2 rounded-2xl bg-t2g-teal px-5 py-3 font-heading text-sm font-semibold text-white shadow-md"
-        >
-          <Calendar className="h-4 w-4" />
-          Book Now
-        </a>
-      </div>
-    </div>
-  );
-}
 
 /* ─────────────────────────────────────────────────────────
    Main page
@@ -225,8 +190,6 @@ export default function PropertyDetailPage() {
         </div>
       </div>
 
-      {/* Mobile sticky bottom bar */}
-      <MobileBookingBar property={property} />
     </>
   );
 }
